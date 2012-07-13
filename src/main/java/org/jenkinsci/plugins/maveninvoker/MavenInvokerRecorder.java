@@ -22,19 +22,27 @@ package org.jenkinsci.plugins.maveninvoker;
  */
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.remoting.Callable;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import net.sf.json.JSONObject;
+import org.apache.maven.plugin.invoker.model.BuildJob;
+import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Olivier Lamy
@@ -46,7 +54,7 @@ public class MavenInvokerRecorder
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    public final String filenamePattern;
+    public String filenamePattern = "target/invoker-reports/BUILD*.xml";
 
     @DataBoundConstructor
     public MavenInvokerRecorder( String filenamePattern )
@@ -64,10 +72,92 @@ public class MavenInvokerRecorder
     public boolean perform( AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener )
         throws InterruptedException, IOException
     {
-        listener.getLogger().println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
+        PrintStream logger = listener.getLogger();
+        logger.println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
+        FilePath[] filePaths = locateReports( build.getWorkspace(), this.filenamePattern );
+        logger.println( "filePaths:" + Arrays.asList( filePaths ) );
+        try
+        {
+            List<BuildJob> buildJobs = parseReports( filePaths, listener );
+        }
+        catch ( Exception e )
+        {
+            throw new IOException( e.getMessage() );
+        }
         return true;
     }
 
+    static List<BuildJob> parseReports( FilePath[] filePaths, BuildListener listener )
+        throws Exception
+    {
+        PrintStream logger = listener.getLogger();
+        List<BuildJob> buildJobs = new ArrayList<BuildJob>( filePaths.length );
+        final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
+        for ( final FilePath filePath : filePaths )
+        {
+            BuildJob buildJob = filePath.act( new Callable<BuildJob, Exception>()
+            {
+                public BuildJob call()
+                    throws Exception
+                {
+                    String fileName = filePath.getRemote();
+                    System.out.println( "fileName:" + fileName );
+                    InputStream is = new FileInputStream( fileName );
+                    try
+                    {
+                        return reader.read( is );
+                    }
+                    finally
+                    {
+                        is.close();
+                    }
+                }
+            } );
+            logger.println(
+                "buildJob:" + buildJob.getProject() + ":" + buildJob.getResult() + ":" + buildJob.getTime() );
+            buildJobs.add( buildJob );
+
+        }
+        return buildJobs;
+    }
+
+    static FilePath[] locateReports( FilePath workspace, String filenamePattern )
+        throws IOException, InterruptedException
+    {
+
+        // First use ant-style pattern
+        try
+        {
+            FilePath[] ret = workspace.list( filenamePattern );
+            if ( ret.length > 0 )
+            {
+                return ret;
+            }
+        }
+        catch ( Exception e )
+        {
+        }
+
+        // If it fails, do a legacy search
+        List<FilePath> files = new ArrayList<FilePath>();
+        String parts[] = filenamePattern.split( "\\s*[;:,]+\\s*" );
+        for ( String path : parts )
+        {
+            FilePath src = workspace.child( path );
+            if ( src.exists() )
+            {
+                if ( src.isDirectory() )
+                {
+                    files.addAll( Arrays.asList( src.list( "**/BUILD*.xml" ) ) );
+                }
+                else
+                {
+                    files.add( src );
+                }
+            }
+        }
+        return files.toArray( new FilePath[files.size()] );
+    }
 
     public static final class DescriptorImpl
         extends BuildStepDescriptor<Publisher>
@@ -87,7 +177,6 @@ public class MavenInvokerRecorder
         {
             return req.bindJSON( MavenInvokerRecorder.class, formData );
         }*/
-
         @Override
         public boolean isApplicable( Class<? extends AbstractProject> aClass )
         {

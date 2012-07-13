@@ -31,6 +31,14 @@ under the License.
   <version>1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-invoker-plugin</artifactId>
+      <version>1.6</version>
+    </dependency>
+  </dependencies>
+
   <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
   <repositories>
     <repository>
