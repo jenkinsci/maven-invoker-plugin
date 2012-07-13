@@ -34,6 +34,8 @@ import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.FileInputStream;
@@ -78,7 +80,7 @@ public class MavenInvokerRecorder
         logger.println( "filePaths:" + Arrays.asList( filePaths ) );
         try
         {
-            List<BuildJob> buildJobs = parseReports( filePaths, listener );
+            MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener );
         }
         catch ( Exception e )
         {
@@ -87,11 +89,11 @@ public class MavenInvokerRecorder
         return true;
     }
 
-    static List<BuildJob> parseReports( FilePath[] filePaths, BuildListener listener )
+    static MavenInvokerResults parseReports( FilePath[] filePaths, BuildListener listener )
         throws Exception
     {
         PrintStream logger = listener.getLogger();
-        List<BuildJob> buildJobs = new ArrayList<BuildJob>( filePaths.length );
+        MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
         for ( final FilePath filePath : filePaths )
         {
@@ -113,12 +115,23 @@ public class MavenInvokerRecorder
                     }
                 }
             } );
-            logger.println(
-                "buildJob:" + buildJob.getProject() + ":" + buildJob.getResult() + ":" + buildJob.getTime() );
-            buildJobs.add( buildJob );
+
+            MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
+
+            //mavenInvokerResult.buildLog
+            mavenInvokerResult.description = buildJob.getDescription();
+            mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
+            mavenInvokerResult.name = buildJob.getName();
+            mavenInvokerResult.project = buildJob.getProject();
+            mavenInvokerResult.result = buildJob.getResult();
+            mavenInvokerResult.time = buildJob.getTime();
+
+            logger.println( "mavenInvokerResult:" + mavenInvokerResult );
+
+            mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
 
         }
-        return buildJobs;
+        return mavenInvokerResults;
     }
 
     static FilePath[] locateReports( FilePath workspace, String filenamePattern )
