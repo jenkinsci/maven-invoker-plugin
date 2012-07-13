@@ -22,9 +22,13 @@ package org.jenkinsci.plugins.maveninvoker;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
+import hudson.model.Api;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
 import java.io.File;
@@ -45,10 +49,17 @@ public class MavenInvokerBuildAction
 
     private final AbstractBuild<?, ?> build;
 
+    private transient int passedTestCount;
+
+    private transient int failedTestCount;
+
+    private transient int skippedTestCount;
+
     public MavenInvokerBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
     {
         this.build = build;
         this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( mavenInvokerResults );
+        initTestCountsFields( mavenInvokerResults );
     }
 
     public String getIconFileName()
@@ -56,7 +67,7 @@ public class MavenInvokerBuildAction
         return null;
     }
 
-    public Reference<MavenInvokerResults> getMavenInvokerResults()
+    public MavenInvokerResults getMavenInvokerResults()
     {
         if ( mavenInvokerResults == null )
         {
@@ -77,11 +88,10 @@ public class MavenInvokerBuildAction
             }
             else
             {
-
                 this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
             }
         }
-        return mavenInvokerResults;
+        return mavenInvokerResults.get();
     }
 
     public String getDisplayName()
@@ -93,6 +103,26 @@ public class MavenInvokerBuildAction
     public String getUrlName()
     {
         return "maven-invoker-plugin-resuls";
+    }
+
+    public Api getApi()
+    {
+        return new Api( getMavenInvokerResults() );
+    }
+
+    public int getPassedTestCount()
+    {
+        return passedTestCount;
+    }
+
+    public int getFailedTestCount()
+    {
+        return failedTestCount;
+    }
+
+    public int getSkippedTestCount()
+    {
+        return skippedTestCount;
     }
 
     MavenInvokerResults loadResults( FilePath[] paths )
@@ -123,5 +153,45 @@ public class MavenInvokerBuildAction
             }
         }
         return results;
+    }
+
+    private void initTestCountsFields( MavenInvokerResults mavenInvokerResults )
+    {
+        for ( MavenInvokerResult result : mavenInvokerResults.mavenInvokerResults )
+        {
+            String resultStr = result.result;
+            if ( StringUtils.equals( resultStr, BuildJob.Result.ERROR ) )
+            {
+                failedTestCount++;
+            }
+            else if ( StringUtils.equals( resultStr, BuildJob.Result.SKIPPED ) )
+            {
+                skippedTestCount++;
+            }
+            else if ( StringUtils.equals( resultStr, BuildJob.Result.SUCCESS ) )
+            {
+                passedTestCount++;
+            }
+            // TODO an other field ?
+            else if ( StringUtils.equals( resultStr, BuildJob.Result.FAILURE_BUILD ) )
+            {
+                failedTestCount++;
+            }
+            else if ( StringUtils.equals( resultStr, BuildJob.Result.FAILURE_POST_HOOK ) )
+            {
+                failedTestCount++;
+            }
+            else if ( StringUtils.equals( resultStr, BuildJob.Result.FAILURE_PRE_HOOK ) )
+            {
+                failedTestCount++;
+            }
+        }
+    }
+
+    protected Object readResolve()
+    {
+        initTestCountsFields( getMavenInvokerResults() );
+
+        return this;
     }
 }
