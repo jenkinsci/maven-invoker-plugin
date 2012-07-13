@@ -32,6 +32,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
@@ -92,7 +93,7 @@ public class MavenInvokerRecorder
     static MavenInvokerResults parseReports( FilePath[] filePaths, BuildListener listener )
         throws Exception
     {
-        PrintStream logger = listener.getLogger();
+        final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
         for ( final FilePath filePath : filePaths )
@@ -103,7 +104,7 @@ public class MavenInvokerRecorder
                     throws Exception
                 {
                     String fileName = filePath.getRemote();
-                    System.out.println( "fileName:" + fileName );
+                    logger.println( "fileName:" + fileName );
                     InputStream is = new FileInputStream( fileName );
                     try
                     {
@@ -111,7 +112,7 @@ public class MavenInvokerRecorder
                     }
                     finally
                     {
-                        is.close();
+                        IOUtils.closeQuietly( is );
                     }
                 }
             } );
