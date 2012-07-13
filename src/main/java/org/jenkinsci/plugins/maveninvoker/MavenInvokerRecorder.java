@@ -39,6 +39,7 @@ import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,7 +82,7 @@ public class MavenInvokerRecorder
         logger.println( "found reports:" + Arrays.asList( filePaths ) );
         try
         {
-            MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener );
+            MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener, build );
         }
         catch ( Exception e )
         {
@@ -90,12 +91,13 @@ public class MavenInvokerRecorder
         return true;
     }
 
-    static MavenInvokerResults parseReports( FilePath[] filePaths, BuildListener listener )
+    static MavenInvokerResults parseReports( FilePath[] filePaths, BuildListener listener, AbstractBuild<?, ?> build )
         throws Exception
     {
         final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
+        saveReports( getMavenInvokerReportsDirectory( build ), filePaths, logger );
         for ( final FilePath filePath : filePaths )
         {
             BuildJob buildJob = filePath.act( new Callable<BuildJob, Exception>()
@@ -105,6 +107,7 @@ public class MavenInvokerRecorder
                 {
                     String fileName = filePath.getRemote();
                     logger.println( "fileName:" + fileName );
+
                     InputStream is = new FileInputStream( fileName );
                     try
                     {
@@ -117,22 +120,64 @@ public class MavenInvokerRecorder
                 }
             } );
 
-            MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
-
-            //mavenInvokerResult.buildLog
-            mavenInvokerResult.description = buildJob.getDescription();
-            mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
-            mavenInvokerResult.name = buildJob.getName();
-            mavenInvokerResult.project = buildJob.getProject();
-            mavenInvokerResult.result = buildJob.getResult();
-            mavenInvokerResult.time = buildJob.getTime();
+            MavenInvokerResult mavenInvokerResult = map( buildJob );
 
             logger.println( "mavenInvokerResult:" + mavenInvokerResult );
 
             mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
 
+
         }
         return mavenInvokerResults;
+    }
+
+    static MavenInvokerResult map( BuildJob buildJob )
+    {
+        MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
+
+        //mavenInvokerResult.buildLog
+        mavenInvokerResult.description = buildJob.getDescription();
+        mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
+        mavenInvokerResult.name = buildJob.getName();
+        mavenInvokerResult.project = buildJob.getProject();
+        mavenInvokerResult.result = buildJob.getResult();
+        mavenInvokerResult.time = buildJob.getTime();
+        return mavenInvokerResult;
+    }
+
+    /**
+     * save reports
+     */
+    static boolean saveReports( FilePath maveninvokerDir, FilePath[] paths, PrintStream logger )
+    {
+        logger.println( "Saving reports..." );
+        try
+        {
+            maveninvokerDir.mkdirs();
+            int i = 0;
+            for ( FilePath report : paths )
+            {
+                String name = "maven-invoker-result" + ( i > 0 ? "-" + i : "" ) + ".xml";
+                i++;
+                FilePath dst = maveninvokerDir.child( name );
+                report.copyTo( dst );
+            }
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace( logger );
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Gets the directory to store report files
+     */
+    static FilePath getMavenInvokerReportsDirectory( AbstractBuild<?, ?> build )
+    {
+        return new FilePath( new File( build.getRootDir(), "maven-invoker-plugin-reports" ) );
     }
 
     static FilePath[] locateReports( FilePath workspace, String filenamePattern )
