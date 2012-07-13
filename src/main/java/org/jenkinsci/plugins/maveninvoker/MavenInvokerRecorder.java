@@ -78,7 +78,7 @@ public class MavenInvokerRecorder
         PrintStream logger = listener.getLogger();
         logger.println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
         FilePath[] filePaths = locateReports( build.getWorkspace(), this.filenamePattern );
-        logger.println( "filePaths:" + Arrays.asList( filePaths ) );
+        logger.println( "found reports:" + Arrays.asList( filePaths ) );
         try
         {
             MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener );
