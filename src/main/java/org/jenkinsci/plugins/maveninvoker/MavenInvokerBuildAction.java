@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.maveninvoker;
 /*
+ * Copyright (c) Olivier Lamy
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -59,8 +60,6 @@ public class MavenInvokerBuildAction
     {
         if ( mavenInvokerResults == null )
         {
-
-            this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults() );
             FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( this.build );
             FilePath[] paths = null;
             try
