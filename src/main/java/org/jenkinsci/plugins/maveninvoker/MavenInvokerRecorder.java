@@ -83,6 +83,9 @@ public class MavenInvokerRecorder
         try
         {
             MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener, build );
+
+            MavenInvokerBuildAction action = new MavenInvokerBuildAction( build, mavenInvokerResults );
+            build.getActions().add( action );
         }
         catch ( Exception e )
         {
