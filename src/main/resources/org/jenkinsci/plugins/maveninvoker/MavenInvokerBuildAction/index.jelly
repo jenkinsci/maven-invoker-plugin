@@ -20,13 +20,40 @@ under the License.
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+   <script type="text/javascript">
+      function showorHideTable(id) {
+         var element = document.getElementById(id);
+         if (document.getElementById(id).style.display == "none") {
+            document.getElementById(id).style.display = "";
+         } else if (document.getElementById(id).style.display == "") {
+            document.getElementById(id).style.display = "none";
+         }
+      }
+   </script>
+
    <l:layout title="Maven Invoker Report for Build #${it.build.number} ">
       <l:main-panel>
          <h1>${it.displayName}</h1>
          <h2>Test run: ${it.runTests}, Test passed: ${it.passedTestCount}, Test failed: ${it.failedTestCount},Test skiped: ${it.skippedTestCount}</h2>
-         <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
-           <p>"${r.time}</p>
-         </j:forEach>
+         <table>
+           <thead>
+             <tr>
+               <th>Project</th>
+               <th>Result</th>
+               <th>Time (ms)</th>
+           </tr>
+           </thead>
+           <tbody>
+           <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
+             <tr>
+               <td>${r.project}</td>
+               <td>${r.result}</td>
+               <td>${r.time}</td>
+             </tr>
+           </j:forEach>
+           </tbody>
+         </table>
       </l:main-panel>
    </l:layout>
 </j:jelly>

@@ -93,7 +93,8 @@ public class MavenInvokerBuildAction
                 this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
             }
         }
-        return mavenInvokerResults.get();
+        MavenInvokerResults results = mavenInvokerResults.get();
+        return results;
     }
 
     public String getDisplayName()
