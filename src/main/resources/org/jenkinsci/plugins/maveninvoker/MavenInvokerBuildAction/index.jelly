@@ -21,10 +21,12 @@ under the License.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
    <l:layout title="Maven Invoker Report for Build #${it.build.number} ">
-      <st:include it="${it.build}" page="sidepanel.jelly"/>
       <l:main-panel>
          <h1>${it.displayName}</h1>
-         <h1>${it.passedTestCount}</h1>
+         <h2>Test run: ${it.runTests}, Test passed: ${it.passedTestCount}, Test failed: ${it.failedTestCount},Test skiped: ${it.skippedTestCount}</h2>
+         <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
+           <p>"${r.time}</p>
+         </j:forEach>
       </l:main-panel>
    </l:layout>
 </j:jelly>

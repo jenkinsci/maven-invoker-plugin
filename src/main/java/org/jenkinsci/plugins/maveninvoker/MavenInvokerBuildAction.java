@@ -45,6 +45,11 @@ public class MavenInvokerBuildAction
     implements Action, Serializable
 {
 
+    /**
+     * Unique identifier for this class.
+     */
+    private static final long serialVersionUID = 31415927L;
+
     private Reference<MavenInvokerResults> mavenInvokerResults;
 
     private final AbstractBuild<?, ?> build;
@@ -55,16 +60,13 @@ public class MavenInvokerBuildAction
 
     private transient int skippedTestCount;
 
+    private transient int runTests;
+
     public MavenInvokerBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
     {
         this.build = build;
         this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( mavenInvokerResults );
         initTestCountsFields( mavenInvokerResults );
-    }
-
-    public String getIconFileName()
-    {
-        return null;
     }
 
     public MavenInvokerResults getMavenInvokerResults()
@@ -102,7 +104,12 @@ public class MavenInvokerBuildAction
 
     public String getUrlName()
     {
-        return "maven-invoker-plugin-resuls";
+        return "maven-invoker-plugin-results";
+    }
+
+    public String getIconFileName()
+    {
+        return "/plugin/maven-invoker-plugin/icons/report.png";
     }
 
     public Api getApi()
@@ -123,6 +130,11 @@ public class MavenInvokerBuildAction
     public int getSkippedTestCount()
     {
         return skippedTestCount;
+    }
+
+    public int getRunTests()
+    {
+        return runTests;
     }
 
     MavenInvokerResults loadResults( FilePath[] paths )
@@ -185,6 +197,7 @@ public class MavenInvokerBuildAction
             {
                 failedTestCount++;
             }
+            runTests++;
         }
     }
 

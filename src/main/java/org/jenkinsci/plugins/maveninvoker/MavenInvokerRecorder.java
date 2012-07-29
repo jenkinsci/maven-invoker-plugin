@@ -26,6 +26,7 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.Callable;
 import hudson.tasks.BuildStepDescriptor;
@@ -85,7 +86,8 @@ public class MavenInvokerRecorder
             MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener, build );
 
             MavenInvokerBuildAction action = new MavenInvokerBuildAction( build, mavenInvokerResults );
-            build.getActions().add( action );
+
+            build.addAction( action );
         }
         catch ( Exception e )
         {
