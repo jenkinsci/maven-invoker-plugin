@@ -32,6 +32,10 @@ under the License.
   <version>1.1-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
+  <name>Jenkins Maven Invoker plugin</name>
+  <description>Reports on Maven Invoker it tests</description>
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/Maven+Invoker+Plugin</url>
+
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/maven-invoker-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/maven-invoker-plugin.git</developerConnection>
