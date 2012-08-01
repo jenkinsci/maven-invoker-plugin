@@ -64,6 +64,7 @@ public class MavenInvokerArchiver
         {
             return true;
         }
+        final String buildDirectory = new File( pom.getBuild().getDirectory() ).getName();
 
         final PrintStream logger = listener.getLogger();
         logger.println( "MavenInvokerArchiver" );
@@ -119,8 +120,10 @@ public class MavenInvokerArchiver
                     throws IOException, IOException, InterruptedException
                 {
 
-                    FilePath[] reportsPaths =
-                        MavenInvokerRecorder.locateReports( build.getWorkspace(), reportsDir.getName() + "BUILD*.xml" );
+                    FilePath[] reportsPaths = MavenInvokerRecorder.locateReports( build.getWorkspace(),
+                                                                                  buildDirectory + "/"
+                                                                                      + reportsDir.getName()
+                                                                                      + "/BUILD*.xml" );
 
                     FilePath backupDirectory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
 
