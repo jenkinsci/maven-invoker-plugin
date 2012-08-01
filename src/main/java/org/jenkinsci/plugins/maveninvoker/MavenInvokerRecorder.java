@@ -225,20 +225,7 @@ public class MavenInvokerRecorder
         extends BuildStepDescriptor<Publisher>
     {
 
-        /**
-         * Do not instantiate DescriptorImpl.
-         */
-        /*private DescriptorImpl()
-        {
-            super( Publisher.class );
-        }*/
 
-        /*@Override
-        public MavenInvokerRecorder newInstance( StaplerRequest req, JSONObject formData )
-            throws FormException
-        {
-            return req.bindJSON( MavenInvokerRecorder.class, formData );
-        }*/
         @Override
         public boolean isApplicable( Class<? extends AbstractProject> aClass )
         {

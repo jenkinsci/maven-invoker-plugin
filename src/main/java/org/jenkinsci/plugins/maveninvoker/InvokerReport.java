@@ -45,6 +45,6 @@ public class InvokerReport
     public MavenAggregatedReport createAggregatedAction( MavenModuleSetBuild build,
                                                          Map<MavenModule, List<MavenBuild>> moduleBuilds )
     {
-        return null;
+        return new InvokerMavenAggregatedReport( build, this.getMavenInvokerResults() );
     }
 }
