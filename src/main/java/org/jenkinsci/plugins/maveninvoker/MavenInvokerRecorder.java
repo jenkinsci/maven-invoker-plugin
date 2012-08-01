@@ -26,7 +26,6 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.Callable;
 import hudson.tasks.BuildStepDescriptor;
@@ -102,7 +101,7 @@ public class MavenInvokerRecorder
         final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
-        saveReports( getMavenInvokerReportsDirectory( build ), filePaths, logger );
+        saveReports( getMavenInvokerReportsDirectory( build ), filePaths );
         for ( final FilePath filePath : filePaths )
         {
             BuildJob buildJob = filePath.act( new Callable<BuildJob, Exception>()
@@ -153,9 +152,8 @@ public class MavenInvokerRecorder
     /**
      * save reports
      */
-    static boolean saveReports( FilePath maveninvokerDir, FilePath[] paths, PrintStream logger )
+    static boolean saveReports( FilePath maveninvokerDir, FilePath[] paths )
     {
-        logger.println( "Saving reports..." );
         try
         {
             maveninvokerDir.mkdirs();
@@ -170,7 +168,7 @@ public class MavenInvokerRecorder
         }
         catch ( Exception e )
         {
-            e.printStackTrace( logger );
+            e.printStackTrace();
             return false;
         }
         return true;

@@ -21,17 +21,31 @@ package org.jenkinsci.plugins.maveninvoker;
  */
 
 import hudson.Extension;
+import hudson.FilePath;
+import hudson.maven.MavenBuild;
 import hudson.maven.MavenBuildProxy;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenReporter;
 import hudson.maven.MavenReporterDescriptor;
 import hudson.maven.MojoInfo;
 import hudson.model.BuildListener;
+import hudson.model.Result;
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.invoker.model.BuildJob;
+import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  * @author Olivier Lamy
@@ -51,11 +65,85 @@ public class MavenInvokerArchiver
             return true;
         }
 
-        PrintStream logger = listener.getLogger();
+        final PrintStream logger = listener.getLogger();
         logger.println( "MavenInvokerArchiver" );
-        XmlPlexusConfiguration c = (XmlPlexusConfiguration) mojo.configuration.getChild( "reportsDirectory" );
+        File[] reports = new File[0];
+        try
+        {
+            final File reportsDir = mojo.getConfigurationValue( "reportsDirectory", File.class );
+            reports = reportsDir.listFiles( new FilenameFilter()
+            {
+                public boolean accept( File file, String s )
+                {
+                    return s.startsWith( "BUILD" );
+                }
+            } );
 
-        return true;
+            logger.println( "found reports:" + Arrays.asList( reports ) );
+
+            final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
+
+            final MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
+            // TODO
+            // saveReports
+
+            for ( File f : reports )
+            {
+                InputStream is = new FileInputStream( f );
+                try
+                {
+                    BuildJob buildJob = reader.read( is );
+                    MavenInvokerResult mavenInvokerResult = MavenInvokerRecorder.map( buildJob );
+
+                    logger.println( "mavenInvokerResult:" + mavenInvokerResult );
+
+                    mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
+                }
+                catch ( XmlPullParserException e )
+                {
+                    e.printStackTrace( listener.fatalError( "failed to parse report" ) );
+                    build.setResult( Result.FAILURE );
+                    return true;
+                }
+                finally
+                {
+                    IOUtils.closeQuietly( is );
+                }
+            }
+
+            int failedCount = build.execute( new MavenBuildProxy.BuildCallable<Integer, IOException>()
+            {
+                private static final long serialVersionUID = 1L;
+
+                public Integer call( MavenBuild build )
+                    throws IOException, IOException, InterruptedException
+                {
+
+                    FilePath[] reportsPaths =
+                        MavenInvokerRecorder.locateReports( build.getWorkspace(), reportsDir.getName() + "BUILD*.xml" );
+
+                    FilePath backupDirectory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
+
+                    MavenInvokerRecorder.saveReports( backupDirectory, reportsPaths );
+
+                    InvokerReport invokerReport = new InvokerReport( build, mavenInvokerResults );
+                    build.getActions().add( invokerReport );
+                    int failed = invokerReport.getFailedTestCount();
+                    return failed;
+                }
+            } );
+
+            return true;
+
+
+        }
+        catch ( ComponentConfigurationException e )
+        {
+            e.printStackTrace( listener.fatalError( "failed to find report directory" ) );
+            build.setResult( Result.FAILURE );
+            return true;
+        }
+
     }
 
 
