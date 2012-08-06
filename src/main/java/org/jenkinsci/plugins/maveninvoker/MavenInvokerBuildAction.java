@@ -105,7 +105,7 @@ public class MavenInvokerBuildAction
     public String getDisplayName()
     {
         // FIXME i18n
-        return "Maven Invoker Plugin Results:"+getClass().getName();
+        return "Maven Invoker Plugin Results";
     }
 
     public String getUrlName()
