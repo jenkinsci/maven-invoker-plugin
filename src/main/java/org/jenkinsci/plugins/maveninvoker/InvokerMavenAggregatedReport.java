@@ -68,14 +68,13 @@ public class InvokerMavenAggregatedReport
 
     public Class<? extends AggregatableAction> getIndividualActionType()
     {
-        System.out.println( "getIndividualActionType" );
-        return null;
+        return InvokerReport.class;
     }
 
     public Action getProjectAction( MavenModuleSet moduleSet )
     {
         System.out.println( "getProjectAction" );
-        return new MavenInvokerAggregatedBuildAction( null, this.mavenInvokerResults );
+        return this;// new MavenInvokerAggregatedBuildAction( null, this.mavenInvokerResults );
     }
 
     public static class MavenInvokerAggregatedBuildAction

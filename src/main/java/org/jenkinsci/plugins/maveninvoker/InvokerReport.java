@@ -39,9 +39,12 @@ public class InvokerReport
     implements AggregatableAction
 {
 
+    private MavenInvokerResults mavenInvokerResults;
+
     public InvokerReport( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
     {
         super( build, mavenInvokerResults );
+        this.mavenInvokerResults = mavenInvokerResults;
     }
 
     public MavenAggregatedReport createAggregatedAction( MavenModuleSetBuild build,
@@ -66,5 +69,11 @@ public class InvokerReport
             }
         }
         return new InvokerMavenAggregatedReport( build );
+    }
+
+    @Override
+    public MavenInvokerResults getMavenInvokerResults()
+    {
+        return this.mavenInvokerResults;
     }
 }
