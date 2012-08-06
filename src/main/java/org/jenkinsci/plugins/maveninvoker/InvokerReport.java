@@ -52,11 +52,16 @@ public class InvokerReport
         {
             for ( MavenBuild mavenBuild : entry.getValue() )
             {
-                List<MavenInvokerResult> results =
-                    mavenBuild.getAction( MavenInvokerBuildAction.class ).getMavenInvokerResults().mavenInvokerResults;
-                if ( results != null )
+
+                MavenInvokerBuildAction mavenInvokerBuildAction = mavenBuild.getAction( MavenInvokerBuildAction.class );
+                if ( mavenInvokerBuildAction != null )
                 {
-                    mavenInvokerResults.mavenInvokerResults.addAll( results );
+                    List<MavenInvokerResult> results =
+                        mavenInvokerBuildAction.getMavenInvokerResults().mavenInvokerResults;
+                    if ( results != null )
+                    {
+                        mavenInvokerResults.mavenInvokerResults.addAll( results );
+                    }
                 }
             }
         }
