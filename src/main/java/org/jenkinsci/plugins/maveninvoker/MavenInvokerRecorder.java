@@ -174,6 +174,27 @@ public class MavenInvokerRecorder
         return true;
     }
 
+    static boolean saveBuildLogs( FilePath backupDirectory, List<FilePath> paths )
+    {
+        try
+        {
+            backupDirectory.mkdirs();
+            for ( FilePath buildLog : paths )
+            {
+                File file = new File( buildLog.getRemote() );
+                String name = file.getParentFile().getName() + "-build.log";
+                FilePath dst = backupDirectory.child( name );
+                buildLog.copyTo( dst );
+            }
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * Gets the directory to store report files
@@ -181,6 +202,12 @@ public class MavenInvokerRecorder
     static FilePath getMavenInvokerReportsDirectory( AbstractBuild<?, ?> build )
     {
         return new FilePath( new File( build.getRootDir(), "maven-invoker-plugin-reports" ) );
+    }
+
+    static FilePath[] locateBuildLogs( FilePath workspace, String basePath )
+        throws IOException, InterruptedException
+    {
+        return workspace.list( basePath + "/build.log" );
     }
 
     static FilePath[] locateReports( FilePath workspace, String filenamePattern )

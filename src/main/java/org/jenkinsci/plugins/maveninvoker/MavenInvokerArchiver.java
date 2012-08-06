@@ -45,7 +45,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Olivier Lamy
@@ -71,6 +73,12 @@ public class MavenInvokerArchiver
         File[] reports = new File[0];
         try
         {
+            //projectsDirectory
+            final File projectsDirectory = mojo.getConfigurationValue( "projectsDirectory", File.class );
+
+            //cloneProjectsTo
+            final File cloneProjectsTo = mojo.getConfigurationValue( "cloneProjectsTo", File.class );
+
             final File reportsDir = mojo.getConfigurationValue( "reportsDirectory", File.class );
             reports = reportsDir.listFiles( new FilenameFilter()
             {
@@ -128,6 +136,29 @@ public class MavenInvokerArchiver
                     FilePath backupDirectory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
 
                     MavenInvokerRecorder.saveReports( backupDirectory, reportsPaths );
+
+                    List<FilePath> allBuildLogs = new ArrayList<FilePath>();
+
+                    for ( MavenInvokerResult mavenInvokerResult : mavenInvokerResults.mavenInvokerResults )
+                    {
+
+                        // search build.log files
+
+                        File invokerBuildDir = cloneProjectsTo == null ? projectsDirectory : cloneProjectsTo;
+
+                        File projectDir = new File( invokerBuildDir, mavenInvokerResult.project );
+
+                        FilePath[] buildLogs = MavenInvokerRecorder.locateBuildLogs( build.getWorkspace(), "**/"
+                            + projectDir.getParentFile().getName() );
+
+                        if ( buildLogs != null )
+                        {
+                            allBuildLogs.addAll( Arrays.asList( buildLogs ) );
+                        }
+                    }
+
+                    // backup all build.log
+                    MavenInvokerRecorder.saveBuildLogs( backupDirectory, allBuildLogs );
 
                     InvokerReport invokerReport = new InvokerReport( build, mavenInvokerResults );
                     build.getActions().add( invokerReport );
