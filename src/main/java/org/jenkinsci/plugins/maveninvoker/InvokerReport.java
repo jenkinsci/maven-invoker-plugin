@@ -19,11 +19,7 @@ package org.jenkinsci.plugins.maveninvoker;
  * under the License.
  */
 
-import hudson.maven.AggregatableAction;
-import hudson.maven.MavenAggregatedReport;
-import hudson.maven.MavenBuild;
-import hudson.maven.MavenModule;
-import hudson.maven.MavenModuleSetBuild;
+import hudson.maven.*;
 import hudson.model.AbstractBuild;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
@@ -35,45 +31,39 @@ import java.util.Map;
  * @author Olivier Lamy
  */
 public class InvokerReport
-    extends MavenInvokerBuildAction
-    implements AggregatableAction
-{
+        extends MavenInvokerBuildAction
+        implements AggregatableAction {
 
     private MavenInvokerResults mavenInvokerResults;
 
-    public InvokerReport( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
-    {
-        super( build, mavenInvokerResults );
+    public InvokerReport(AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults) {
+        super(build, mavenInvokerResults);
         this.mavenInvokerResults = mavenInvokerResults;
     }
 
-    public MavenAggregatedReport createAggregatedAction( MavenModuleSetBuild build,
-                                                         Map<MavenModule, List<MavenBuild>> moduleBuilds )
-    {
-        MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
-        for ( Map.Entry<MavenModule, List<MavenBuild>> entry : moduleBuilds.entrySet() )
-        {
-            for ( MavenBuild mavenBuild : entry.getValue() )
-            {
+    public MavenAggregatedReport createAggregatedAction(MavenModuleSetBuild build,
+                                                        Map<MavenModule, List<MavenBuild>> moduleBuilds) {
 
-                MavenInvokerBuildAction mavenInvokerBuildAction = mavenBuild.getAction( MavenInvokerBuildAction.class );
-                if ( mavenInvokerBuildAction != null )
-                {
-                    List<MavenInvokerResult> results =
-                        mavenInvokerBuildAction.getMavenInvokerResults().mavenInvokerResults;
-                    if ( results != null )
-                    {
-                        mavenInvokerResults.mavenInvokerResults.addAll( results );
+        for (Map.Entry<MavenModule, List<MavenBuild>> entry : moduleBuilds.entrySet()) {
+            for (MavenBuild mavenBuild : entry.getValue()) {
+
+                MavenInvokerBuildAction mavenInvokerBuildAction = mavenBuild.getAction(MavenInvokerBuildAction.class);
+                if (mavenInvokerBuildAction != null) {
+                    MavenInvokerResults mavenInvokerResults = mavenInvokerBuildAction.getMavenInvokerResults();
+                    if (mavenInvokerResults != null) {
+                        List<MavenInvokerResult> results = mavenInvokerResults.mavenInvokerResults;
+                        if (results != null) {
+                            mavenInvokerResults.mavenInvokerResults.addAll(results);
+                        }
                     }
                 }
             }
         }
-        return new InvokerMavenAggregatedReport( build );
+        return new InvokerMavenAggregatedReport(build);
     }
 
     @Override
-    public MavenInvokerResults getMavenInvokerResults()
-    {
+    public MavenInvokerResults getMavenInvokerResults() {
         return this.mavenInvokerResults;
     }
 }

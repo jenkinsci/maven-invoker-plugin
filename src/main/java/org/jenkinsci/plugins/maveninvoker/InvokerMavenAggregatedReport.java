@@ -19,11 +19,7 @@ package org.jenkinsci.plugins.maveninvoker;
  * under the License.
  */
 
-import hudson.maven.AggregatableAction;
-import hudson.maven.MavenAggregatedReport;
-import hudson.maven.MavenBuild;
-import hudson.maven.MavenModule;
-import hudson.maven.MavenModuleSet;
+import hudson.maven.*;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
@@ -36,9 +32,8 @@ import java.util.Map;
  * @author Olivier Lamy
  */
 public class InvokerMavenAggregatedReport
-    extends MavenInvokerBuildAction
-    implements MavenAggregatedReport
-{
+        extends MavenInvokerBuildAction
+        implements MavenAggregatedReport {
 
     /**
      * Unique identifier for this class.
@@ -47,57 +42,53 @@ public class InvokerMavenAggregatedReport
 
     MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
 
-    public InvokerMavenAggregatedReport( AbstractBuild<?, ?> build )
-    {
-        super( build );
+    public InvokerMavenAggregatedReport(AbstractBuild<?, ?> build) {
+        super(build);
     }
 
-    public void update( Map<MavenModule, List<MavenBuild>> moduleBuilds, MavenBuild newBuild )
-    {
-        InvokerReport invokerReport = newBuild.getAction( InvokerReport.class );
+    public void update(Map<MavenModule, List<MavenBuild>> moduleBuilds, MavenBuild newBuild) {
+        InvokerReport invokerReport = newBuild.getAction(InvokerReport.class);
 
-        List<MavenInvokerResult> results = invokerReport.getMavenInvokerResults().mavenInvokerResults;
-        mavenInvokerResults.mavenInvokerResults.addAll( results );
+        if (invokerReport != null) {
+            MavenInvokerResults mavenInvokerResults = invokerReport.getMavenInvokerResults();
+            if (mavenInvokerResults != null) {
+                List<MavenInvokerResult> results = mavenInvokerResults.mavenInvokerResults;
+                mavenInvokerResults.mavenInvokerResults.addAll(results);
+            }
+        }
     }
 
     @Override
-    public MavenInvokerResults getMavenInvokerResults()
-    {
+    public MavenInvokerResults getMavenInvokerResults() {
         return this.mavenInvokerResults;
     }
 
-    public Class<? extends AggregatableAction> getIndividualActionType()
-    {
+    public Class<? extends AggregatableAction> getIndividualActionType() {
         return InvokerReport.class;
     }
 
-    public Action getProjectAction( MavenModuleSet moduleSet )
-    {
-        System.out.println( "getProjectAction" );
+    public Action getProjectAction(MavenModuleSet moduleSet) {
+        System.out.println("getProjectAction");
         return this;// new MavenInvokerAggregatedBuildAction( null, this.mavenInvokerResults );
     }
 
     public static class MavenInvokerAggregatedBuildAction
-        extends MavenInvokerBuildAction
-    {
+            extends MavenInvokerBuildAction {
         MavenInvokerResults mavenInvokerResults;
 
-        public MavenInvokerAggregatedBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
-        {
-            super( build, mavenInvokerResults );
+        public MavenInvokerAggregatedBuildAction(AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults) {
+            super(build, mavenInvokerResults);
             this.mavenInvokerResults = mavenInvokerResults;
         }
 
         @Override
-        public MavenInvokerResults getMavenInvokerResults()
-        {
+        public MavenInvokerResults getMavenInvokerResults() {
             return mavenInvokerResults;
         }
 
         @Override
-        protected Object readResolve()
-        {
-            initTestCountsFields( getMavenInvokerResults() );
+        protected Object readResolve() {
+            initTestCountsFields(getMavenInvokerResults());
 
             return this;
         }
