@@ -69,6 +69,11 @@ public class MavenInvokerBuildAction
         initTestCountsFields( mavenInvokerResults );
     }
 
+    protected MavenInvokerBuildAction( AbstractBuild<?, ?> build )
+    {
+        this.build = build;
+    }
+
     public MavenInvokerResults getMavenInvokerResults()
     {
         if ( mavenInvokerResults == null || mavenInvokerResults.get() == null || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
@@ -168,7 +173,7 @@ public class MavenInvokerBuildAction
         return results;
     }
 
-    private void initTestCountsFields( MavenInvokerResults mavenInvokerResults )
+    protected void initTestCountsFields( MavenInvokerResults mavenInvokerResults )
     {
         for ( MavenInvokerResult result : mavenInvokerResults.mavenInvokerResults )
         {

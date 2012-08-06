@@ -103,6 +103,7 @@ public class MavenInvokerArchiver
                 {
                     BuildJob buildJob = reader.read( is );
                     MavenInvokerResult mavenInvokerResult = MavenInvokerRecorder.map( buildJob );
+                    mavenInvokerResult.mavenModuleName = pom.getArtifactId();
 
                     logger.println( "mavenInvokerResult:" + mavenInvokerResult );
 

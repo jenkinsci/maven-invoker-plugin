@@ -26,6 +26,7 @@ import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
 import java.util.List;
@@ -39,14 +40,30 @@ public class InvokerMavenAggregatedReport
     implements MavenAggregatedReport
 {
 
-    public InvokerMavenAggregatedReport( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
+    /**
+     * Unique identifier for this class.
+     */
+    private static final long serialVersionUID = 31415927L;
+
+    MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
+
+    public InvokerMavenAggregatedReport( AbstractBuild<?, ?> build )
     {
-        super( build, mavenInvokerResults );
+        super( build );
     }
 
     public void update( Map<MavenModule, List<MavenBuild>> moduleBuilds, MavenBuild newBuild )
     {
-        System.out.println( "update" );
+        InvokerReport invokerReport = newBuild.getAction( InvokerReport.class );
+
+        List<MavenInvokerResult> results = invokerReport.getMavenInvokerResults().mavenInvokerResults;
+        mavenInvokerResults.mavenInvokerResults.addAll( results );
+    }
+
+    @Override
+    public MavenInvokerResults getMavenInvokerResults()
+    {
+        return this.mavenInvokerResults;
     }
 
     public Class<? extends AggregatableAction> getIndividualActionType()
@@ -58,6 +75,32 @@ public class InvokerMavenAggregatedReport
     public Action getProjectAction( MavenModuleSet moduleSet )
     {
         System.out.println( "getProjectAction" );
-        return null;
+        return new MavenInvokerAggregatedBuildAction( null, this.mavenInvokerResults );
+    }
+
+    public static class MavenInvokerAggregatedBuildAction
+        extends MavenInvokerBuildAction
+    {
+        MavenInvokerResults mavenInvokerResults;
+
+        public MavenInvokerAggregatedBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
+        {
+            super( build, mavenInvokerResults );
+            this.mavenInvokerResults = mavenInvokerResults;
+        }
+
+        @Override
+        public MavenInvokerResults getMavenInvokerResults()
+        {
+            return mavenInvokerResults;
+        }
+
+        @Override
+        protected Object readResolve()
+        {
+            initTestCountsFields( getMavenInvokerResults() );
+
+            return this;
+        }
     }
 }

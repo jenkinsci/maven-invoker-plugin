@@ -27,6 +27,10 @@ import java.io.Serializable;
 public class MavenInvokerResult
     implements Serializable
 {
+
+    // used with mavenReporter
+    public String mavenModuleName;
+
     public String project;
 
     public String name;
