@@ -46,7 +46,7 @@ under the License.
            </tr>
            </thead>
            <tbody>
-           <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
+           <j:forEach var="r" items="${it.mavenInvokerResults.sortedMavenInvokerResults}">
              <tr>
                <td>${r.mavenModuleName}</td>
                <td>${r.project}</td>

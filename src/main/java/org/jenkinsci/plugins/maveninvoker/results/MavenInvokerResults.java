@@ -19,7 +19,11 @@ package org.jenkinsci.plugins.maveninvoker.results;
  * under the License.
  */
 
+import org.jenkinsci.plugins.maveninvoker.InvokerMavenAggregatedReport;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,5 +39,12 @@ public class MavenInvokerResults
     public MavenInvokerResults()
     {
         // no op
+    }
+
+    public List<MavenInvokerResult> getSortedMavenInvokerResults()
+    {
+        List<MavenInvokerResult> results = new ArrayList<MavenInvokerResult>( mavenInvokerResults );
+        Collections.sort( results, InvokerMavenAggregatedReport.COMPARATOR_INSTANCE );
+        return results;
     }
 }

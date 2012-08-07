@@ -29,6 +29,9 @@ import hudson.model.Action;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +101,7 @@ public class InvokerMavenAggregatedReport
         @Override
         public MavenInvokerResults getMavenInvokerResults()
         {
-            return mavenInvokerResults;
+            return this.mavenInvokerResults;
         }
 
         @Override
@@ -109,4 +112,25 @@ public class InvokerMavenAggregatedReport
             return this;
         }
     }
+
+    public static final MavenInvokerResultComparator COMPARATOR_INSTANCE = new MavenInvokerResultComparator();
+
+    public static class MavenInvokerResultComparator
+        implements Comparator<MavenInvokerResult>
+    {
+        public int compare( MavenInvokerResult mavenInvokerResult, MavenInvokerResult mavenInvokerResult1 )
+        {
+            if ( mavenInvokerResult.mavenModuleName == null )
+            {
+                return 0;
+            }
+            if ( mavenInvokerResult1.mavenModuleName == null )
+            {
+                return 0;
+            }
+
+            return mavenInvokerResult.mavenModuleName.compareTo( mavenInvokerResult1.mavenModuleName );
+        }
+    }
+
 }
