@@ -80,8 +80,7 @@ public class InvokerMavenAggregatedReport
 
     public Action getProjectAction( MavenModuleSet moduleSet )
     {
-        System.out.println( "getProjectAction" );
-        return this;// new MavenInvokerAggregatedBuildAction( null, this.mavenInvokerResults );
+        return this;
     }
 
     public static class MavenInvokerAggregatedBuildAction
