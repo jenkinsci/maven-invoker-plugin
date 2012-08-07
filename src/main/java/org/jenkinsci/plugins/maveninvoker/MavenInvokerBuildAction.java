@@ -76,7 +76,8 @@ public class MavenInvokerBuildAction
 
     public MavenInvokerResults getMavenInvokerResults()
     {
-        if ( mavenInvokerResults == null || mavenInvokerResults.get() == null || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
+        if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
+            || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
         {
             FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( this.build );
             FilePath[] paths = null;
