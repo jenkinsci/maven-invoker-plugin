@@ -20,8 +20,8 @@ package org.jenkinsci.plugins.maveninvoker.results;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Olivier Lamy
@@ -30,7 +30,7 @@ public class MavenInvokerResults
     implements Serializable
 {
 
-    public List<MavenInvokerResult> mavenInvokerResults = new ArrayList<MavenInvokerResult>();
+    public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<MavenInvokerResult>();
 
     public MavenInvokerResults()
     {
