@@ -63,6 +63,7 @@ public class InvokerMavenAggregatedReport
             {
                 List<MavenInvokerResult> results = mavenInvokerResults.mavenInvokerResults;
                 this.mavenInvokerResults.mavenInvokerResults.addAll( results );
+                initTestCountsFields( this.mavenInvokerResults );
             }
         }
     }
