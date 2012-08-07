@@ -25,7 +25,6 @@ import hudson.maven.MavenBuild;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.model.AbstractBuild;
-import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public class InvokerReport
                                                          Map<MavenModule, List<MavenBuild>> moduleBuilds )
     {
 
-        for ( Map.Entry<MavenModule, List<MavenBuild>> entry : moduleBuilds.entrySet() )
+        /*for ( Map.Entry<MavenModule, List<MavenBuild>> entry : moduleBuilds.entrySet() )
         {
             for ( MavenBuild mavenBuild : entry.getValue() )
             {
@@ -65,11 +64,17 @@ public class InvokerReport
                         List<MavenInvokerResult> results = mavenInvokerResults.mavenInvokerResults;
                         if ( results != null )
                         {
-                            mavenInvokerResults.mavenInvokerResults.addAll( results );
+                            this.mavenInvokerResults.mavenInvokerResults.addAll( results );
                         }
                     }
                 }
             }
+        }*/
+        InvokerMavenAggregatedReport invokerMavenAggregatedReport =
+            build.getAction( InvokerMavenAggregatedReport.class );
+        if ( invokerMavenAggregatedReport != null )
+        {
+            return invokerMavenAggregatedReport;
         }
         return new InvokerMavenAggregatedReport( build );
     }

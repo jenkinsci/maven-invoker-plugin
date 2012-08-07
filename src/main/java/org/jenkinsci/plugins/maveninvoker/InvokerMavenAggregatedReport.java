@@ -62,7 +62,7 @@ public class InvokerMavenAggregatedReport
             if ( mavenInvokerResults != null )
             {
                 List<MavenInvokerResult> results = mavenInvokerResults.mavenInvokerResults;
-                mavenInvokerResults.mavenInvokerResults.addAll( results );
+                this.mavenInvokerResults.mavenInvokerResults.addAll( results );
             }
         }
     }
