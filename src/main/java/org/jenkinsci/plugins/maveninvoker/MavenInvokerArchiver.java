@@ -88,8 +88,15 @@ public class MavenInvokerArchiver
                 }
             } );
 
-            logger.println( "found reports:" + Arrays.asList( reports ) );
-
+            if ( reports != null )
+            {
+                logger.println( "found reports:" + Arrays.asList( reports ) );
+            }
+            else
+            {
+                logger.println( "no reports found" );
+                return true;
+            }
             final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
 
             final MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
