@@ -61,8 +61,8 @@ public class MavenInvokerArchiver
                                 Throwable error )
         throws InterruptedException, IOException
     {
-        if ( !mojo.is( "org.apache.maven.plugins", "maven-invoker-plugin", "run" ) && !mojo.is(
-            "org.apache.maven.plugins", "maven-invoker-plugin", "integration-test" ) )
+        if ( !mojo.is( "org.apache.maven.plugins", "maven-invoker-plugin", "run" )
+            && !mojo.is( "org.apache.maven.plugins", "maven-invoker-plugin", "integration-test" ) )
         {
             return true;
         }
@@ -73,15 +73,16 @@ public class MavenInvokerArchiver
         File[] reports = new File[0];
         try
         {
-            //projectsDirectory
+            // projectsDirectory
             final File projectsDirectory = mojo.getConfigurationValue( "projectsDirectory", File.class );
 
-            //cloneProjectsTo
+            // cloneProjectsTo
             final File cloneProjectsTo = mojo.getConfigurationValue( "cloneProjectsTo", File.class );
 
             final File reportsDir = mojo.getConfigurationValue( "reportsDirectory", File.class );
             reports = reportsDir.listFiles( new FilenameFilter()
             {
+                @Override
                 public boolean accept( File file, String s )
                 {
                     return s.startsWith( "BUILD" );
@@ -132,16 +133,16 @@ public class MavenInvokerArchiver
             {
                 private static final long serialVersionUID = 1L;
 
-                public Integer call( MavenBuild build )
+                @Override
+                public Integer call( MavenBuild aBuild )
                     throws IOException, IOException, InterruptedException
                 {
 
-                    FilePath[] reportsPaths = MavenInvokerRecorder.locateReports( build.getWorkspace(),
-                                                                                  buildDirectory + "/"
-                                                                                      + reportsDir.getName()
-                                                                                      + "/BUILD*.xml" );
+                    FilePath[] reportsPaths =
+                        MavenInvokerRecorder.locateReports( aBuild.getWorkspace(),
+                                                            buildDirectory + "/" + reportsDir.getName() + "/BUILD*.xml" );
 
-                    FilePath backupDirectory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
+                    FilePath backupDirectory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( aBuild );
 
                     MavenInvokerRecorder.saveReports( backupDirectory, reportsPaths );
 
@@ -156,8 +157,9 @@ public class MavenInvokerArchiver
 
                         File projectDir = new File( invokerBuildDir, mavenInvokerResult.project );
 
-                        FilePath[] buildLogs = MavenInvokerRecorder.locateBuildLogs( build.getWorkspace(), "**/"
-                            + projectDir.getParentFile().getName() );
+                        FilePath[] buildLogs =
+                            MavenInvokerRecorder.locateBuildLogs( aBuild.getWorkspace(), "**/"
+                                + projectDir.getParentFile().getName() );
 
                         if ( buildLogs != null )
                         {
@@ -168,15 +170,14 @@ public class MavenInvokerArchiver
                     // backup all build.log
                     MavenInvokerRecorder.saveBuildLogs( backupDirectory, allBuildLogs );
 
-                    InvokerReport invokerReport = new InvokerReport( build, mavenInvokerResults );
-                    build.getActions().add( invokerReport );
+                    InvokerReport invokerReport = new InvokerReport( aBuild, mavenInvokerResults );
+                    aBuild.addAction( invokerReport );
                     int failed = invokerReport.getFailedTestCount();
                     return failed;
                 }
             } );
 
             return true;
-
 
         }
         catch ( ComponentConfigurationException e )
@@ -187,7 +188,6 @@ public class MavenInvokerArchiver
         }
 
     }
-
 
     @Extension
     public static final class DescriptorImpl
@@ -200,7 +200,6 @@ public class MavenInvokerArchiver
             // FIXME i18n
             return "Maven Invoker Plugin Results";
         }
-
 
         @Override
         public MavenReporter newAutoInstance( MavenModule module )

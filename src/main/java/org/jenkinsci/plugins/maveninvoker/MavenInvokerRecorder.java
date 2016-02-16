@@ -27,14 +27,16 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.remoting.Callable;
+import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -47,6 +49,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import jenkins.SlaveToMasterFileCallable;
 
 /**
  * @author Olivier Lamy
@@ -66,7 +70,7 @@ public class MavenInvokerRecorder
         this.filenamePattern = filenamePattern;
     }
 
-
+    @Override
     public BuildStepMonitor getRequiredMonitorService()
     {
         return BuildStepMonitor.STEP;
@@ -78,7 +82,7 @@ public class MavenInvokerRecorder
     {
         PrintStream logger = listener.getLogger();
         logger.println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
-        FilePath[] filePaths = locateReports( build.getWorkspace(), this.filenamePattern );
+        FilePath[] filePaths = locateReports( build.getWorkspace(), filenamePattern );
         logger.println( "found reports:" + Arrays.asList( filePaths ) );
         try
         {
@@ -90,7 +94,7 @@ public class MavenInvokerRecorder
         }
         catch ( Exception e )
         {
-            throw new IOException( e.getMessage() );
+            throw new IOException( e.getMessage(), e );
         }
         return true;
     }
@@ -104,18 +108,22 @@ public class MavenInvokerRecorder
         saveReports( getMavenInvokerReportsDirectory( build ), filePaths );
         for ( final FilePath filePath : filePaths )
         {
-            BuildJob buildJob = filePath.act( new Callable<BuildJob, Exception>()
+            BuildJob buildJob = filePath.act( new SlaveToMasterFileCallable<BuildJob>()
             {
-                public BuildJob call()
-                    throws Exception
-                {
-                    String fileName = filePath.getRemote();
-                    logger.println( "fileName:" + fileName );
+                private static final long serialVersionUID = 1L;
 
-                    InputStream is = new FileInputStream( fileName );
+                @Override
+                public BuildJob invoke( File f, VirtualChannel channel )
+                    throws IOException, InterruptedException
+                {
+                    InputStream is = new FileInputStream( f );
                     try
                     {
                         return reader.read( is );
+                    }
+                    catch ( XmlPullParserException e )
+                    {
+                        throw new IOException( e );
                     }
                     finally
                     {
@@ -130,7 +138,6 @@ public class MavenInvokerRecorder
 
             mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
 
-
         }
         return mavenInvokerResults;
     }
@@ -139,7 +146,7 @@ public class MavenInvokerRecorder
     {
         MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
 
-        //mavenInvokerResult.buildLog
+        // mavenInvokerResult.buildLog
         mavenInvokerResult.description = buildJob.getDescription();
         mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
         mavenInvokerResult.name = buildJob.getName();
@@ -194,7 +201,6 @@ public class MavenInvokerRecorder
         }
         return true;
     }
-
 
     /**
      * Gets the directory to store report files
@@ -251,7 +257,6 @@ public class MavenInvokerRecorder
     public static final class DescriptorImpl
         extends BuildStepDescriptor<Publisher>
     {
-
 
         @Override
         public boolean isApplicable( Class<? extends AbstractProject> aClass )

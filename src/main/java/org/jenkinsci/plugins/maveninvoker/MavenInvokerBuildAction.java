@@ -1,4 +1,5 @@
 package org.jenkinsci.plugins.maveninvoker;
+
 /*
  * Copyright (c) Olivier Lamy
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -79,7 +80,7 @@ public class MavenInvokerBuildAction
         if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
             || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
         {
-            FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( this.build );
+            FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
             FilePath[] paths = null;
             try
             {
@@ -92,28 +93,31 @@ public class MavenInvokerBuildAction
             }
             if ( paths == null )
             {
-                this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( new MavenInvokerResults() );
+                mavenInvokerResults = new WeakReference<MavenInvokerResults>( new MavenInvokerResults() );
             }
             else
             {
-                this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
+                mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
             }
         }
         MavenInvokerResults results = mavenInvokerResults.get();
         return results;
     }
 
+    @Override
     public String getDisplayName()
     {
         // FIXME i18n
         return "Maven Invoker Plugin Results";
     }
 
+    @Override
     public String getUrlName()
     {
         return "maven-invoker-plugin-results";
     }
 
+    @Override
     public String getIconFileName()
     {
         return "/plugin/maven-invoker-plugin/icons/report.png";
@@ -174,9 +178,9 @@ public class MavenInvokerBuildAction
         return results;
     }
 
-    protected void initTestCountsFields( MavenInvokerResults mavenInvokerResults )
+    protected void initTestCountsFields( MavenInvokerResults miResults )
     {
-        for ( MavenInvokerResult result : mavenInvokerResults.mavenInvokerResults )
+        for ( MavenInvokerResult result : miResults.mavenInvokerResults )
         {
             String resultStr = result.result;
             if ( StringUtils.equals( resultStr, BuildJob.Result.ERROR ) )
