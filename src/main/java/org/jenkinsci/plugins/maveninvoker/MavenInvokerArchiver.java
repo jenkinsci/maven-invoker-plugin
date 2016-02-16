@@ -112,9 +112,6 @@ public class MavenInvokerArchiver
                     BuildJob buildJob = reader.read( is );
                     MavenInvokerResult mavenInvokerResult = MavenInvokerRecorder.map( buildJob );
                     mavenInvokerResult.mavenModuleName = pom.getArtifactId();
-
-                    logger.println( "mavenInvokerResult:" + mavenInvokerResult );
-
                     mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
                 }
                 catch ( XmlPullParserException e )
@@ -128,6 +125,7 @@ public class MavenInvokerArchiver
                     IOUtils.closeQuietly( is );
                 }
             }
+            logger.println( "Finished parsing Maven Invoker results" );
 
             int failedCount = build.execute( new MavenBuildProxy.BuildCallable<Integer, IOException>()
             {

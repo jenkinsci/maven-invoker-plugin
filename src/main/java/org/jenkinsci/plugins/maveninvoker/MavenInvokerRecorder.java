@@ -27,30 +27,23 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import jenkins.SlaveToMasterFileCallable;
 
 /**
  * @author Olivier Lamy
@@ -83,13 +76,11 @@ public class MavenInvokerRecorder
         PrintStream logger = listener.getLogger();
         logger.println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
         FilePath[] filePaths = locateReports( build.getWorkspace(), filenamePattern );
-        logger.println( "found reports:" + Arrays.asList( filePaths ) );
+        logger.println( "Found reports:" + Arrays.asList( filePaths ) );
         try
         {
             MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener, build );
-
             MavenInvokerBuildAction action = new MavenInvokerBuildAction( build, mavenInvokerResults );
-
             build.addAction( action );
         }
         catch ( Exception e )
@@ -108,37 +99,11 @@ public class MavenInvokerRecorder
         saveReports( getMavenInvokerReportsDirectory( build ), filePaths );
         for ( final FilePath filePath : filePaths )
         {
-            BuildJob buildJob = filePath.act( new SlaveToMasterFileCallable<BuildJob>()
-            {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public BuildJob invoke( File f, VirtualChannel channel )
-                    throws IOException, InterruptedException
-                {
-                    InputStream is = new FileInputStream( f );
-                    try
-                    {
-                        return reader.read( is );
-                    }
-                    catch ( XmlPullParserException e )
-                    {
-                        throw new IOException( e );
-                    }
-                    finally
-                    {
-                        IOUtils.closeQuietly( is );
-                    }
-                }
-            } );
-
+            BuildJob buildJob = reader.read( filePath.read() );
             MavenInvokerResult mavenInvokerResult = map( buildJob );
-
-            logger.println( "mavenInvokerResult:" + mavenInvokerResult );
-
             mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
-
         }
+        logger.println( "Finished parsing Maven Invoker results" );
         return mavenInvokerResults;
     }
 
@@ -219,7 +184,6 @@ public class MavenInvokerRecorder
     static FilePath[] locateReports( FilePath workspace, String filenamePattern )
         throws IOException, InterruptedException
     {
-
         // First use ant-style pattern
         try
         {
@@ -257,7 +221,6 @@ public class MavenInvokerRecorder
     public static final class DescriptorImpl
         extends BuildStepDescriptor<Publisher>
     {
-
         @Override
         public boolean isApplicable( Class<? extends AbstractProject> aClass )
         {

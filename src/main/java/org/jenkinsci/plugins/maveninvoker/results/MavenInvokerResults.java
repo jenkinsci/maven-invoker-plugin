@@ -33,10 +33,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Olivier Lamy
  */
 public class MavenInvokerResults implements Serializable {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<MavenInvokerResult>();

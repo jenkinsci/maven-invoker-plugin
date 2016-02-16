@@ -27,9 +27,6 @@ import java.io.Serializable;
  */
 public class MavenInvokerResult implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     // used with mavenReporter
@@ -70,4 +67,5 @@ public class MavenInvokerResult implements Serializable {
         sb.append('}');
         return sb.toString();
     }
+
 }
