@@ -1,4 +1,5 @@
 package org.jenkinsci.plugins.maveninvoker.results;
+
 /*
  * Copyright (c) Olivier Lamy
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,6 +29,8 @@ public class MavenInvokerResult
     implements Serializable
 {
 
+    private static final long serialVersionUID = 1L;
+
     // used with mavenReporter
     public String mavenModuleName;
 
@@ -42,11 +45,6 @@ public class MavenInvokerResult
     public String failureMessage;
 
     public double time;
-
-    public String type;
-
-    public String buildLog;
-
 
     public MavenInvokerResult()
     {
@@ -64,9 +62,8 @@ public class MavenInvokerResult
         sb.append( ", result='" ).append( result ).append( '\'' );
         sb.append( ", failureMessage='" ).append( failureMessage ).append( '\'' );
         sb.append( ", time=" ).append( time );
-        sb.append( ", type='" ).append( type ).append( '\'' );
-        sb.append( ", buildLog='" ).append( buildLog ).append( '\'' );
         sb.append( '}' );
         return sb.toString();
     }
+
 }

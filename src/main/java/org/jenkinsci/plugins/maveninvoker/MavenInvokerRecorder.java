@@ -27,12 +27,11 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.remoting.Callable;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import org.apache.commons.io.IOUtils;
+
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
@@ -40,9 +39,7 @@ import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +63,7 @@ public class MavenInvokerRecorder
         this.filenamePattern = filenamePattern;
     }
 
-
+    @Override
     public BuildStepMonitor getRequiredMonitorService()
     {
         return BuildStepMonitor.STEP;
@@ -78,19 +75,17 @@ public class MavenInvokerRecorder
     {
         PrintStream logger = listener.getLogger();
         logger.println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
-        FilePath[] filePaths = locateReports( build.getWorkspace(), this.filenamePattern );
-        logger.println( "found reports:" + Arrays.asList( filePaths ) );
+        FilePath[] filePaths = locateReports( build.getWorkspace(), filenamePattern );
+        logger.println( "Found reports:" + Arrays.asList( filePaths ) );
         try
         {
             MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener, build );
-
             MavenInvokerBuildAction action = new MavenInvokerBuildAction( build, mavenInvokerResults );
-
             build.addAction( action );
         }
         catch ( Exception e )
         {
-            throw new IOException( e.getMessage() );
+            throw new IOException( e.getMessage(), e );
         }
         return true;
     }
@@ -104,34 +99,11 @@ public class MavenInvokerRecorder
         saveReports( getMavenInvokerReportsDirectory( build ), filePaths );
         for ( final FilePath filePath : filePaths )
         {
-            BuildJob buildJob = filePath.act( new Callable<BuildJob, Exception>()
-            {
-                public BuildJob call()
-                    throws Exception
-                {
-                    String fileName = filePath.getRemote();
-                    logger.println( "fileName:" + fileName );
-
-                    InputStream is = new FileInputStream( fileName );
-                    try
-                    {
-                        return reader.read( is );
-                    }
-                    finally
-                    {
-                        IOUtils.closeQuietly( is );
-                    }
-                }
-            } );
-
+            BuildJob buildJob = reader.read( filePath.read() );
             MavenInvokerResult mavenInvokerResult = map( buildJob );
-
-            logger.println( "mavenInvokerResult:" + mavenInvokerResult );
-
             mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
-
-
         }
+        logger.println( "Finished parsing Maven Invoker results" );
         return mavenInvokerResults;
     }
 
@@ -139,7 +111,7 @@ public class MavenInvokerRecorder
     {
         MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
 
-        //mavenInvokerResult.buildLog
+        // mavenInvokerResult.buildLog
         mavenInvokerResult.description = buildJob.getDescription();
         mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
         mavenInvokerResult.name = buildJob.getName();
@@ -195,7 +167,6 @@ public class MavenInvokerRecorder
         return true;
     }
 
-
     /**
      * Gets the directory to store report files
      */
@@ -213,7 +184,6 @@ public class MavenInvokerRecorder
     static FilePath[] locateReports( FilePath workspace, String filenamePattern )
         throws IOException, InterruptedException
     {
-
         // First use ant-style pattern
         try
         {
@@ -251,8 +221,6 @@ public class MavenInvokerRecorder
     public static final class DescriptorImpl
         extends BuildStepDescriptor<Publisher>
     {
-
-
         @Override
         public boolean isApplicable( Class<? extends AbstractProject> aClass )
         {

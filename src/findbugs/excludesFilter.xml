@@ -1,0 +1,12 @@
+<FindBugsFilter>
+     <Match>
+       <Class name="org.jenkinsci.plugins.maveninvoker.MavenInvokerArchiver$2" />
+       <Method name="call" />
+       <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+     </Match>
+     <Match>
+       <Class name="org.jenkinsci.plugins.maveninvoker.MavenInvokerBuildAction" />
+       <Method name="getMavenInvokerResults" />
+       <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+     </Match>
+</FindBugsFilter>

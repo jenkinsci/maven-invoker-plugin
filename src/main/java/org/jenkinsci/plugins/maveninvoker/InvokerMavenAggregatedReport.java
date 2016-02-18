@@ -1,4 +1,5 @@
 package org.jenkinsci.plugins.maveninvoker;
+
 /*
  * Copyright (c) Olivier Lamy
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,16 +25,16 @@ import hudson.maven.MavenAggregatedReport;
 import hudson.maven.MavenBuild;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
-import hudson.model.AbstractBuild;
 import hudson.model.Action;
-import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
-import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
+import hudson.model.AbstractBuild;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
 /**
  * @author Olivier Lamy
@@ -55,18 +56,19 @@ public class InvokerMavenAggregatedReport
         super( build );
     }
 
+    @Override
     public void update( Map<MavenModule, List<MavenBuild>> moduleBuilds, MavenBuild newBuild )
     {
         InvokerReport invokerReport = newBuild.getAction( InvokerReport.class );
 
         if ( invokerReport != null )
         {
-            MavenInvokerResults mavenInvokerResults = invokerReport.getMavenInvokerResults();
-            if ( mavenInvokerResults != null )
+            MavenInvokerResults miResults = invokerReport.getMavenInvokerResults();
+            if ( miResults != null )
             {
-                List<MavenInvokerResult> results = mavenInvokerResults.mavenInvokerResults;
-                this.mavenInvokerResults.mavenInvokerResults.addAll( results );
-                initTestCountsFields( this.mavenInvokerResults );
+                List<MavenInvokerResult> results = miResults.mavenInvokerResults;
+                mavenInvokerResults.mavenInvokerResults.addAll( results );
+                initTestCountsFields( mavenInvokerResults );
             }
         }
     }
@@ -74,14 +76,16 @@ public class InvokerMavenAggregatedReport
     @Override
     public MavenInvokerResults getMavenInvokerResults()
     {
-        return this.mavenInvokerResults;
+        return mavenInvokerResults;
     }
 
+    @Override
     public Class<? extends AggregatableAction> getIndividualActionType()
     {
         return InvokerReport.class;
     }
 
+    @Override
     public Action getProjectAction( MavenModuleSet moduleSet )
     {
         return this;
@@ -90,6 +94,8 @@ public class InvokerMavenAggregatedReport
     public static class MavenInvokerAggregatedBuildAction
         extends MavenInvokerBuildAction
     {
+        private static final long serialVersionUID = 1L;
+
         MavenInvokerResults mavenInvokerResults;
 
         public MavenInvokerAggregatedBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
@@ -101,7 +107,7 @@ public class InvokerMavenAggregatedReport
         @Override
         public MavenInvokerResults getMavenInvokerResults()
         {
-            return this.mavenInvokerResults;
+            return mavenInvokerResults;
         }
 
         @Override
@@ -116,8 +122,11 @@ public class InvokerMavenAggregatedReport
     public static final MavenInvokerResultComparator COMPARATOR_INSTANCE = new MavenInvokerResultComparator();
 
     public static class MavenInvokerResultComparator
-        implements Comparator<MavenInvokerResult>
+        implements Comparator<MavenInvokerResult>, Serializable
     {
+        private static final long serialVersionUID = 1L;
+
+        @Override
         public int compare( MavenInvokerResult mavenInvokerResult, MavenInvokerResult mavenInvokerResult1 )
         {
             if ( mavenInvokerResult.mavenModuleName == null )

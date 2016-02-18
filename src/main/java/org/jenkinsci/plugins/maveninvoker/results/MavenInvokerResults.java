@@ -1,4 +1,5 @@
 package org.jenkinsci.plugins.maveninvoker.results;
+
 /*
  * Copyright (c) Olivier Lamy
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -20,6 +21,7 @@ package org.jenkinsci.plugins.maveninvoker.results;
  */
 
 import org.jenkinsci.plugins.maveninvoker.InvokerMavenAggregatedReport;
+import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,21 +32,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Olivier Lamy
  */
-public class MavenInvokerResults
-    implements Serializable
-{
+public class MavenInvokerResults implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<MavenInvokerResult>();
 
-    public MavenInvokerResults()
-    {
+    public MavenInvokerResults() {
         // no op
     }
 
-    public List<MavenInvokerResult> getSortedMavenInvokerResults()
-    {
-        List<MavenInvokerResult> results = new ArrayList<MavenInvokerResult>( mavenInvokerResults );
-        Collections.sort( results, InvokerMavenAggregatedReport.COMPARATOR_INSTANCE );
+    public List<MavenInvokerResult> getSortedMavenInvokerResults() {
+        List<MavenInvokerResult> results = new ArrayList<MavenInvokerResult>(mavenInvokerResults);
+        Collections.sort(results, InvokerMavenAggregatedReport.COMPARATOR_INSTANCE);
         return results;
     }
 }
