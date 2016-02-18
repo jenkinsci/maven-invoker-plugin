@@ -70,7 +70,7 @@ public class MavenInvokerArchiver
 
         final PrintStream logger = listener.getLogger();
         logger.println( "MavenInvokerArchiver" );
-        File[] reports = new File[0];
+        File[] reports = null;
         try
         {
             // projectsDirectory
@@ -80,14 +80,17 @@ public class MavenInvokerArchiver
             final File cloneProjectsTo = mojo.getConfigurationValue( "cloneProjectsTo", File.class );
 
             final File reportsDir = mojo.getConfigurationValue( "reportsDirectory", File.class );
-            reports = reportsDir.listFiles( new FilenameFilter()
+            if ( reportsDir != null )
             {
-                @Override
-                public boolean accept( File file, String s )
+                reports = reportsDir.listFiles( new FilenameFilter()
                 {
-                    return s.startsWith( "BUILD" );
-                }
-            } );
+                    @Override
+                    public boolean accept( File file, String s )
+                    {
+                        return s.startsWith( "BUILD" );
+                    }
+                } );
+            }
 
             if ( reports != null )
             {
@@ -135,7 +138,10 @@ public class MavenInvokerArchiver
                 public Integer call( MavenBuild aBuild )
                     throws IOException, IOException, InterruptedException
                 {
-
+                    if ( reportsDir == null )
+                    {
+                        return 0;
+                    }
                     FilePath[] reportsPaths =
                         MavenInvokerRecorder.locateReports( aBuild.getWorkspace(),
                                                             buildDirectory + "/" + reportsDir.getName() + "/BUILD*.xml" );
@@ -155,10 +161,14 @@ public class MavenInvokerArchiver
 
                         File projectDir = new File( invokerBuildDir, mavenInvokerResult.project );
 
-                        FilePath[] buildLogs =
-                            MavenInvokerRecorder.locateBuildLogs( aBuild.getWorkspace(), "**/"
-                                + projectDir.getParentFile().getName() );
-
+                        FilePath[] buildLogs = null;
+                        File parentFile = projectDir.getParentFile();
+                        if ( parentFile != null )
+                        {
+                            buildLogs =
+                                MavenInvokerRecorder.locateBuildLogs( aBuild.getWorkspace(),
+                                                                      "**/" + parentFile.getName() );
+                        }
                         if ( buildLogs != null )
                         {
                             allBuildLogs.addAll( Arrays.asList( buildLogs ) );

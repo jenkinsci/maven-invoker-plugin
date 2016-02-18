@@ -25,7 +25,9 @@ import java.io.Serializable;
 /**
  * @author Olivier Lamy
  */
-public class MavenInvokerResult implements Serializable {
+public class MavenInvokerResult
+    implements Serializable
+{
 
     private static final long serialVersionUID = 1L;
 
@@ -44,27 +46,23 @@ public class MavenInvokerResult implements Serializable {
 
     public double time;
 
-    public String type;
-
-    public String buildLog;
-
-    public MavenInvokerResult() {
+    public MavenInvokerResult()
+    {
         // no op
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         final StringBuilder sb = new StringBuilder();
-        sb.append("MavenInvokerResult");
-        sb.append("{project='").append(project).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", result='").append(result).append('\'');
-        sb.append(", failureMessage='").append(failureMessage).append('\'');
-        sb.append(", time=").append(time);
-        sb.append(", type='").append(type).append('\'');
-        sb.append(", buildLog='").append(buildLog).append('\'');
-        sb.append('}');
+        sb.append( "MavenInvokerResult" );
+        sb.append( "{project='" ).append( project ).append( '\'' );
+        sb.append( ", name='" ).append( name ).append( '\'' );
+        sb.append( ", description='" ).append( description ).append( '\'' );
+        sb.append( ", result='" ).append( result ).append( '\'' );
+        sb.append( ", failureMessage='" ).append( failureMessage ).append( '\'' );
+        sb.append( ", time=" ).append( time );
+        sb.append( '}' );
         return sb.toString();
     }
 

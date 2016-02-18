@@ -51,9 +51,9 @@ public class MavenInvokerBuildAction
      */
     private static final long serialVersionUID = 31415927L;
 
-    private Reference<MavenInvokerResults> mavenInvokerResults;
+    private transient Reference<MavenInvokerResults> mavenInvokerResults;
 
-    private final AbstractBuild<?, ?> build;
+    private transient final AbstractBuild<?, ?> build;
 
     private transient int passedTestCount;
 

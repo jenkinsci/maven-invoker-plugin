@@ -28,6 +28,7 @@ import hudson.maven.MavenModuleSet;
 import hudson.model.Action;
 import hudson.model.AbstractBuild;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -121,8 +122,10 @@ public class InvokerMavenAggregatedReport
     public static final MavenInvokerResultComparator COMPARATOR_INSTANCE = new MavenInvokerResultComparator();
 
     public static class MavenInvokerResultComparator
-        implements Comparator<MavenInvokerResult>
+        implements Comparator<MavenInvokerResult>, Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int compare( MavenInvokerResult mavenInvokerResult, MavenInvokerResult mavenInvokerResult1 )
         {
