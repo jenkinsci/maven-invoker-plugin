@@ -19,8 +19,8 @@ under the License.
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:test="/lib/test">
+ 
    <script type="text/javascript">
       function showorHideTable(id) {
          var element = document.getElementById(id);
@@ -33,25 +33,27 @@ under the License.
    </script>
 
    <l:layout title="Maven Invoker Report for Build #${it.build.number} ">
+      <st:include it="${it.build}" page="sidepanel.jelly" />
       <l:main-panel>
          <h1>${it.displayName}</h1>
-         <h2>Test run: ${it.runTests}, Test passed: ${it.passedTestCount}, Test failed: ${it.failedTestCount},Test skiped: ${it.skippedTestCount}</h2>
-         <table>
-           <thead>
-             <tr>
-               <th>Maven Module</th>
-               <th>Project</th>
-               <th>Result</th>
-               <th>Time (ms)</th>
+
+         <j:set var="prev" value="${it.previousResult}" />
+         <test:bar />
+
+         <table class="pane sortable bigtable" id="testresult">
+           <tr>
+             <td class="pane-header">Maven Module</td>
+             <td class="pane-header">Project</td>
+             <td class="pane-header" style="width:5em">Result</td>
+             <td class="pane-header" style="width:5em">Time (ms)</td>
            </tr>
-           </thead>
            <tbody>
            <j:forEach var="r" items="${it.mavenInvokerResults.sortedMavenInvokerResults}">
              <tr>
-               <td>${r.mavenModuleName}</td>
-               <td>${r.project}</td>
-               <td>${r.result}</td>
-               <td>${r.time}</td>
+               <td class="pane">${r.mavenModuleName}</td>
+               <td class="pane">${r.project}</td>
+               <td class="pane" style="text-align:right">${r.result}</td>
+               <td class="pane" style="text-align:right">${r.time}</td>
              </tr>
            </j:forEach>
            </tbody>

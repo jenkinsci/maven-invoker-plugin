@@ -24,6 +24,9 @@ import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.Api;
+import hudson.model.Run;
+import jenkins.model.RunAction2;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.invoker.model.BuildJob;
@@ -43,7 +46,7 @@ import java.lang.ref.WeakReference;
  * @author Olivier Lamy
  */
 public class MavenInvokerBuildAction
-    implements Action, Serializable
+    implements Action, RunAction2, Serializable
 {
 
     /**
@@ -53,7 +56,7 @@ public class MavenInvokerBuildAction
 
     private transient Reference<MavenInvokerResults> mavenInvokerResults;
 
-    private transient final AbstractBuild<?, ?> build;
+    private transient AbstractBuild<?, ?> build;
 
     private transient int passedTestCount;
 
@@ -123,6 +126,18 @@ public class MavenInvokerBuildAction
         return "/plugin/maven-invoker-plugin/icons/report.png";
     }
 
+    @Override
+    public void onAttached(Run<?, ?> r)
+    {
+        this.build = r instanceof AbstractBuild ? (AbstractBuild<?,?>) r : null;
+    }
+
+    @Override
+    public void onLoad(Run<?, ?> r)
+    {
+        this.build = r instanceof AbstractBuild ? (AbstractBuild<?,?>) r : null;
+    }
+
     public Api getApi()
     {
         return new Api( getMavenInvokerResults() );
@@ -146,6 +161,45 @@ public class MavenInvokerBuildAction
     public int getRunTests()
     {
         return runTests;
+    }
+
+    public AbstractBuild<?, ?> getBuild()
+    {
+        return build;
+    }
+
+    public int getFailCount()
+    {
+        return getFailedTestCount();
+    }
+
+    public int getSkipCount()
+    {
+        return getSkippedTestCount();
+    }
+
+    public int getTotalCount()
+    {
+        return getRunTests();
+    }
+
+    public MavenInvokerBuildAction getPreviousResult() {
+        Run<?,?> b = build;
+        while(true) {
+            b = b.getPreviousBuild();
+            if(b==null)
+                return null;
+            MavenInvokerBuildAction r = b.getAction(MavenInvokerBuildAction.class);
+            if (r != null) {
+                if (r == this) {
+                    throw new IllegalStateException(this + " was attached to both " + b + " and " + build);
+                }
+                if (r.build.number != b.number) {
+                    throw new IllegalStateException(r + " was attached to both " + b + " and " + r.build);
+                }
+                return r;
+            }
+        }
     }
 
     MavenInvokerResults loadResults( FilePath[] paths )
@@ -218,4 +272,5 @@ public class MavenInvokerBuildAction
 
         return this;
     }
+
 }
