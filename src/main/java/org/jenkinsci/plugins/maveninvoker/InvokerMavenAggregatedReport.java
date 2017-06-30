@@ -91,34 +91,6 @@ public class InvokerMavenAggregatedReport
         return this;
     }
 
-    public static class MavenInvokerAggregatedBuildAction
-        extends MavenInvokerBuildAction
-    {
-        private static final long serialVersionUID = 1L;
-
-        MavenInvokerResults mavenInvokerResults;
-
-        public MavenInvokerAggregatedBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
-        {
-            super( build, mavenInvokerResults );
-            this.mavenInvokerResults = mavenInvokerResults;
-        }
-
-        @Override
-        public MavenInvokerResults getMavenInvokerResults()
-        {
-            return mavenInvokerResults;
-        }
-
-        @Override
-        protected Object readResolve()
-        {
-            initTestCountsFields( getMavenInvokerResults() );
-
-            return this;
-        }
-    }
-
     public static final MavenInvokerResultComparator COMPARATOR_INSTANCE = new MavenInvokerResultComparator();
 
     public static class MavenInvokerResultComparator

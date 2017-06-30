@@ -21,8 +21,6 @@ package org.jenkinsci.plugins.maveninvoker;
  */
 
 import hudson.FilePath;
-import hudson.model.AbstractBuild;
-import hudson.model.Action;
 import hudson.model.Api;
 import hudson.model.Run;
 import jenkins.model.RunAction2;
@@ -46,7 +44,7 @@ import java.lang.ref.WeakReference;
  * @author Olivier Lamy
  */
 public class MavenInvokerBuildAction
-    implements Action, RunAction2, Serializable
+    implements RunAction2, Serializable
 {
 
     /**
@@ -56,7 +54,7 @@ public class MavenInvokerBuildAction
 
     private transient Reference<MavenInvokerResults> mavenInvokerResults;
 
-    private transient AbstractBuild<?, ?> build;
+    private transient Run<?, ?> build;
 
     private transient int passedTestCount;
 
@@ -66,45 +64,61 @@ public class MavenInvokerBuildAction
 
     private transient int runTests;
 
-    public MavenInvokerBuildAction( AbstractBuild<?, ?> build, MavenInvokerResults mavenInvokerResults )
+    /**
+     * Constructor.
+     * @deprecated This is a {@link RunAction2} instance, not need to pass build explicitly.
+     *             Use {@link #MavenInvokerBuildAction(org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults)}
+     */
+    @Deprecated
+    public MavenInvokerBuildAction( Run<?, ?> build, MavenInvokerResults mavenInvokerResults )
     {
         this.build = build;
         this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( mavenInvokerResults );
         initTestCountsFields( mavenInvokerResults );
     }
 
-    protected MavenInvokerBuildAction( AbstractBuild<?, ?> build )
+    public MavenInvokerBuildAction( MavenInvokerResults mavenInvokerResults )
+    {
+        this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( mavenInvokerResults );
+        initTestCountsFields( mavenInvokerResults );
+    }
+
+    protected MavenInvokerBuildAction( Run<?, ?> build )
     {
         this.build = build;
     }
 
     public MavenInvokerResults getMavenInvokerResults()
     {
-        if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
-            || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
+        if ( build != null )
         {
-            FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
-            FilePath[] paths = null;
-            try
+            if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
+                || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
             {
-                paths = directory.list( "maven-invoker-result*.xml" );
+                FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
+                FilePath[] paths = null;
+                try
+                {
+                    paths = directory.list( "maven-invoker-result*.xml" );
+                }
+                catch ( Exception e )
+                {
+                    // FIXME improve logging
+                    // ignore this error nothing to show
+                }
+                if ( paths == null )
+                {
+                    mavenInvokerResults = new WeakReference<MavenInvokerResults>( new MavenInvokerResults() );
+                }
+                else
+                {
+                    mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
+                }
             }
-            catch ( Exception e )
-            {
-                // FIXME improve logging
-                // ignore this error nothing to show
-            }
-            if ( paths == null )
-            {
-                mavenInvokerResults = new WeakReference<MavenInvokerResults>( new MavenInvokerResults() );
-            }
-            else
-            {
-                mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
-            }
+            MavenInvokerResults results = mavenInvokerResults.get();
+            return results;
         }
-        MavenInvokerResults results = mavenInvokerResults.get();
-        return results;
+        return new MavenInvokerResults();
     }
 
     @Override
@@ -129,13 +143,14 @@ public class MavenInvokerBuildAction
     @Override
     public void onAttached(Run<?, ?> r)
     {
-        this.build = r instanceof AbstractBuild ? (AbstractBuild<?,?>) r : null;
+        this.build = r;
     }
 
     @Override
     public void onLoad(Run<?, ?> r)
     {
-        this.build = r instanceof AbstractBuild ? (AbstractBuild<?,?>) r : null;
+        this.build = r;
+        init();
     }
 
     public Api getApi()
@@ -163,7 +178,7 @@ public class MavenInvokerBuildAction
         return runTests;
     }
 
-    public AbstractBuild<?, ?> getBuild()
+    public Run<?, ?> getBuild()
     {
         return build;
     }
@@ -200,6 +215,34 @@ public class MavenInvokerBuildAction
                 return r;
             }
         }
+    }
+
+    public MavenInvokerResult getResult(String url)
+    {
+        try
+        {
+            for ( MavenInvokerResult result : getMavenInvokerResults().mavenInvokerResults )
+            {
+                if ( url.equals( result.getUrl() ) )
+                {
+                    result.build = build;
+                    String pattern = "**/" + MavenInvokerRecorder.STORAGE_DIRECTORY + "/" + result.logFilename;
+                    FilePath[] logs = new FilePath( build.getRootDir() ).list(pattern);
+                    if ( logs.length > 0 )
+                    {
+                        result.log = logs[0].readToString();
+                    }
+                    return result;
+                }
+            }
+        }
+        catch (IOException | InterruptedException e)
+        {
+            // FIXME improve
+            e.printStackTrace();
+        }
+
+        return new MavenInvokerResult();
     }
 
     MavenInvokerResults loadResults( FilePath[] paths )
@@ -268,9 +311,12 @@ public class MavenInvokerBuildAction
 
     protected Object readResolve()
     {
-        initTestCountsFields( getMavenInvokerResults() );
-
+        init();
         return this;
     }
 
+    private void init()
+    {
+        initTestCountsFields( getMavenInvokerResults() );
+    }
 }
