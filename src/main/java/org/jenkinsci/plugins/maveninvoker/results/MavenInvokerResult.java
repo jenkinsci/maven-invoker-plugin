@@ -22,6 +22,8 @@ package org.jenkinsci.plugins.maveninvoker.results;
 
 import java.io.Serializable;
 
+import hudson.model.Run;
+
 /**
  * @author Olivier Lamy
  */
@@ -46,9 +48,20 @@ public class MavenInvokerResult
 
     public double time;
 
+    public String logFilename;
+
+    public transient Run<?,?> build;
+
+    public transient String log;
+
     public MavenInvokerResult()
     {
         // no op
+    }
+
+    public String getUrl()
+    {
+        return project.replace( "/pom.xml", "" );
     }
 
     @Override
@@ -62,6 +75,7 @@ public class MavenInvokerResult
         sb.append( ", result='" ).append( result ).append( '\'' );
         sb.append( ", failureMessage='" ).append( failureMessage ).append( '\'' );
         sb.append( ", time=" ).append( time );
+        sb.append( ", logFilename=" ).append( logFilename );
         sb.append( '}' );
         return sb.toString();
     }

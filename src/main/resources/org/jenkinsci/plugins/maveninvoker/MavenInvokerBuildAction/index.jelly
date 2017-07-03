@@ -21,17 +21,6 @@ under the License.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:test="/lib/test">
 
-   <script type="text/javascript">
-      function showorHideTable(id) {
-         var element = document.getElementById(id);
-         if (document.getElementById(id).style.display == "none") {
-            document.getElementById(id).style.display = "";
-         } else if (document.getElementById(id).style.display == "") {
-            document.getElementById(id).style.display = "none";
-         }
-      }
-   </script>
-
    <l:layout title="Maven Invoker Report for Build #${it.build.number} ">
       <st:include it="${it.build}" page="sidepanel.jelly" />
       <l:main-panel>
@@ -49,7 +38,7 @@ under the License.
            <tbody>
            <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
              <tr>
-               <td class="pane">${r.project}</td>
+               <td class="pane"><a href="result/${r.url}">${r.project}</a></td>
                <td class="pane" style="text-align:right">${r.result}</td>
                <td class="pane" style="text-align:right">${r.time}</td>
              </tr>

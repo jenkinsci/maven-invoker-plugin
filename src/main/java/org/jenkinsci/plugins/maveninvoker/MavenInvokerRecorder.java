@@ -27,6 +27,7 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Run;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -55,12 +56,26 @@ public class MavenInvokerRecorder
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    public String filenamePattern = "target/invoker-reports/BUILD*.xml";
+    public static final String STORAGE_DIRECTORY = "maven-invoker-plugin-reports";
+
+    @Deprecated
+    public transient String filenamePattern;
+
+    public String reportsFilenamePattern = "target/invoker-reports/BUILD*.xml";
+
+    public String invokerBuildDir = "target/its";
+
+    @Deprecated
+    public MavenInvokerRecorder( String reportsFilenamePattern )
+    {
+        this.reportsFilenamePattern = reportsFilenamePattern;
+    }
 
     @DataBoundConstructor
-    public MavenInvokerRecorder( String filenamePattern )
+    public MavenInvokerRecorder( String reportsFilenamePattern, String invokerBuildDir )
     {
-        this.filenamePattern = filenamePattern;
+        this.reportsFilenamePattern = reportsFilenamePattern;
+        this.invokerBuildDir = invokerBuildDir;
     }
 
     @Override
@@ -74,36 +89,43 @@ public class MavenInvokerRecorder
         throws InterruptedException, IOException
     {
         PrintStream logger = listener.getLogger();
-        logger.println( "performing MavenInvokerRecorder, filenamePattern:'" + filenamePattern + "'" );
-        FilePath[] filePaths = locateReports( build.getWorkspace(), filenamePattern );
-        logger.println( "Found reports:" + Arrays.asList( filePaths ) );
-        try
+        logger.println( "performing MavenInvokerRecorder, reportsFilenamePattern:'" + reportsFilenamePattern + "', invokerBuildDir:'" + invokerBuildDir + "'" );
+        FilePath workspace = build.getWorkspace();
+        if ( workspace != null )
         {
-            MavenInvokerResults mavenInvokerResults = parseReports( filePaths, listener, build );
-            MavenInvokerBuildAction action = new MavenInvokerBuildAction( build, mavenInvokerResults );
-            build.addAction( action );
-        }
-        catch ( Exception e )
-        {
-            throw new IOException( e.getMessage(), e );
+            FilePath[] reportsFilePaths = locateReports( workspace, reportsFilenamePattern );
+            FilePath[] logsFilePaths = locateBuildLogs( workspace, invokerBuildDir + "/**" );
+            logger.println( "Found reports:" + Arrays.asList( reportsFilePaths ) );
+            logger.println( "Found logs:" + Arrays.asList( logsFilePaths ) );
+            try
+            {
+                MavenInvokerResults mavenInvokerResults = parseReports( reportsFilePaths, logsFilePaths, listener, build );
+                MavenInvokerBuildAction action = new MavenInvokerBuildAction( mavenInvokerResults );
+                build.addAction( action );
+            }
+            catch ( Exception e )
+            {
+                throw new IOException( e.getMessage(), e );
+            }
         }
         return true;
     }
 
-    static MavenInvokerResults parseReports( FilePath[] filePaths, BuildListener listener, AbstractBuild<?, ?> build )
+    static MavenInvokerResults parseReports( FilePath[] reportsFilePaths, FilePath[] logsFilePaths, BuildListener listener, AbstractBuild<?, ?> build )
         throws Exception
     {
         final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
-        saveReports( getMavenInvokerReportsDirectory( build ), filePaths );
-        for ( final FilePath filePath : filePaths )
+        saveReports( getMavenInvokerReportsDirectory( build ), reportsFilePaths );
+        saveBuildLogs( getMavenInvokerReportsDirectory( build ), Arrays.asList( logsFilePaths ) );
+        for ( final FilePath filePath : reportsFilePaths )
         {
             BuildJob buildJob = reader.read( filePath.read() );
             MavenInvokerResult mavenInvokerResult = map( buildJob );
             mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
         }
-        logger.println( "Finished parsing Maven Invoker results" );
+        logger.println( "Finished parsing Maven Invoker results (found " + mavenInvokerResults.mavenInvokerResults.size()+ ")" );
         return mavenInvokerResults;
     }
 
@@ -111,7 +133,7 @@ public class MavenInvokerRecorder
     {
         MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
 
-        // mavenInvokerResult.buildLog
+        mavenInvokerResult.logFilename = buildJob.getProject().replace("/pom.xml", "-build.log");
         mavenInvokerResult.description = buildJob.getDescription();
         mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
         mavenInvokerResult.name = buildJob.getName();
@@ -170,9 +192,9 @@ public class MavenInvokerRecorder
     /**
      * Gets the directory to store report files
      */
-    static FilePath getMavenInvokerReportsDirectory( AbstractBuild<?, ?> build )
+    static FilePath getMavenInvokerReportsDirectory( Run<?, ?> build )
     {
-        return new FilePath( new File( build.getRootDir(), "maven-invoker-plugin-reports" ) );
+        return new FilePath( new File( build.getRootDir(), STORAGE_DIRECTORY ) );
     }
 
     static FilePath[] locateBuildLogs( FilePath workspace, String basePath )
@@ -234,4 +256,12 @@ public class MavenInvokerRecorder
             return "Maven Invoker Plugin Report";
         }
     }
+
+    protected Object readResolve() {
+        if (filenamePattern != null) {
+           reportsFilenamePattern = filenamePattern;
+        }
+        return this;
+    }
+
 }

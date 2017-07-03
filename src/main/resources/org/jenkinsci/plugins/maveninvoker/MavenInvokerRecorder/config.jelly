@@ -21,6 +21,9 @@ under the License.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:bh="/lib/health">
    <f:entry title="Maven Invoker report pattern">
-      <f:textbox name="maveninvoker.filenamePattern" value="${instance.filenamePattern}"/>
+      <f:textbox name="maveninvoker.reportsFilenamePattern" value="${instance.reportsFilenamePattern}"/>
+   </f:entry>
+   <f:entry title="Maven Invoker Build directory">
+      <f:textbox name="maveninvoker.invokerBuildDir" value="${instance.invokerBuildDir}"/>
    </f:entry>
 </j:jelly>

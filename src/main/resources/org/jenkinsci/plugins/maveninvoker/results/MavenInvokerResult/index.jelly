@@ -17,13 +17,21 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<div>
-   <b>Maven Invoker File Name pattern</b>
-   <p>This is a file name pattern that can be used to locate the Maven Invoker report files
-             (for example <b>**/target/invoker-reports/BUILD*.xml</b>).</p>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-   <b>Maven Invoker Build directory</b>
-   <p>This is the directory where Maven Invoker runs. It is used to find the builds logs
-             (for example <b>**/target/its</b>).</p>
-
-</div>
+   <l:layout title="Maven Invoker Result">
+      <st:include it="${it.build}" page="sidepanel.jelly" />
+      <l:main-panel>
+         <h1>${it.project}</h1>
+         <h2>Result: ${it.result}, Time: ${it.time}</h2>
+         <j:if test="${it.failureMessage != null}">
+             <h2>Failure message:</h2>
+             <pre>${it.failureMessage}</pre>
+         </j:if>
+         <h2>Logs:</h2>
+         <pre>${it.log}</pre>
+      </l:main-panel>
+   </l:layout>
+</j:jelly>
