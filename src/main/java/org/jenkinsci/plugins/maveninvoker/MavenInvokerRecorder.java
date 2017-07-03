@@ -252,8 +252,7 @@ public class MavenInvokerRecorder
         @Override
         public String getDisplayName()
         {
-            // FIXME i18n
-            return "Maven Invoker Plugin Report";
+            return Messages.maveninvoker_DisplayName();
         }
     }
 

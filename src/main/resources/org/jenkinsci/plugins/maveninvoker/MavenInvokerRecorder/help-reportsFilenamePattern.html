@@ -17,13 +17,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:bh="/lib/health">
-   <f:entry field="reportsFilenamePattern" title="${%Maven Invoker report pattern}">
-      <f:textbox name="maveninvoker.reportsFilenamePattern" value="${instance.reportsFilenamePattern}"/>
-   </f:entry>
-   <f:entry field="invokerBuildDir" title="${%Maven Invoker Build directory}">
-      <f:textbox name="maveninvoker.invokerBuildDir" value="${instance.invokerBuildDir}"/>
-   </f:entry>
-</j:jelly>
+<div>
+   <p>This is a file name pattern that can be used to locate the Maven Invoker report files
+             (for example <b>**/target/invoker-reports/BUILD*.xml</b>).</p>
+</div>
