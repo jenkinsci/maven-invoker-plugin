@@ -28,10 +28,12 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import jenkins.tasks.SimpleBuildStep;
 
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
@@ -49,8 +51,7 @@ import java.util.List;
 /**
  * @author Olivier Lamy
  */
-public class MavenInvokerRecorder
-    extends Recorder
+public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
 {
 
     @Extension
@@ -85,12 +86,11 @@ public class MavenInvokerRecorder
     }
 
     @Override
-    public boolean perform( AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener )
-        throws InterruptedException, IOException
+    public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener)
+            throws InterruptedException, IOException
     {
         PrintStream logger = listener.getLogger();
         logger.println( "performing MavenInvokerRecorder, reportsFilenamePattern:'" + reportsFilenamePattern + "', invokerBuildDir:'" + invokerBuildDir + "'" );
-        FilePath workspace = build.getWorkspace();
         if ( workspace != null )
         {
             FilePath[] reportsFilePaths = locateReports( workspace, reportsFilenamePattern );
@@ -99,26 +99,25 @@ public class MavenInvokerRecorder
             logger.println( "Found logs:" + Arrays.asList( logsFilePaths ) );
             try
             {
-                MavenInvokerResults mavenInvokerResults = parseReports( reportsFilePaths, logsFilePaths, listener, build );
+                MavenInvokerResults mavenInvokerResults = parseReports( reportsFilePaths, logsFilePaths, listener, run );
                 MavenInvokerBuildAction action = new MavenInvokerBuildAction( mavenInvokerResults );
-                build.addAction( action );
+                run.addAction( action );
             }
             catch ( Exception e )
             {
                 throw new IOException( e.getMessage(), e );
             }
         }
-        return true;
     }
 
-    static MavenInvokerResults parseReports( FilePath[] reportsFilePaths, FilePath[] logsFilePaths, BuildListener listener, AbstractBuild<?, ?> build )
+    static MavenInvokerResults parseReports( FilePath[] reportsFilePaths, FilePath[] logsFilePaths, TaskListener listener, Run<?, ?> run )
         throws Exception
     {
         final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
-        saveReports( getMavenInvokerReportsDirectory( build ), reportsFilePaths );
-        saveBuildLogs( getMavenInvokerReportsDirectory( build ), Arrays.asList( logsFilePaths ) );
+        saveReports( getMavenInvokerReportsDirectory( run ), reportsFilePaths );
+        saveBuildLogs( getMavenInvokerReportsDirectory( run ), Arrays.asList( logsFilePaths ) );
         for ( final FilePath filePath : reportsFilePaths )
         {
             BuildJob buildJob = reader.read( filePath.read() );
