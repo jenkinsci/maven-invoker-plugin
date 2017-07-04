@@ -31,9 +31,9 @@ under the License.
 
          <table class="pane sortable bigtable" id="testresult">
            <tr>
-             <td class="pane-header">Project</td>
-             <td class="pane-header" style="width:5em">Result</td>
-             <td class="pane-header" style="width:5em">Time (ms)</td>
+             <td class="pane-header">${%Project}</td>
+             <td class="pane-header" style="width:5em">${%Result}</td>
+             <td class="pane-header" style="width:5em">${%Time} (ms)</td>
            </tr>
            <tbody>
            <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">

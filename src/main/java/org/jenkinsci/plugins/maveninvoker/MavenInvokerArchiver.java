@@ -104,8 +104,6 @@ public class MavenInvokerArchiver
             final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
 
             final MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
-            // TODO
-            // saveReports
 
             for ( File f : reports )
             {
@@ -205,8 +203,7 @@ public class MavenInvokerArchiver
         @Override
         public String getDisplayName()
         {
-            // FIXME i18n
-            return "Maven Invoker Plugin Results";
+            return Messages.maveninvoker_DisplayName();
         }
 
         @Override

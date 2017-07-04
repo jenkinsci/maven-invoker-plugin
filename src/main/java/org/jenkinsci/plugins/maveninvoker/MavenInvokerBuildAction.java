@@ -47,6 +47,8 @@ public class MavenInvokerBuildAction
     implements RunAction2, Serializable
 {
 
+    public static final String URL_NAME = "maven-invoker-plugin-results";
+
     /**
      * Unique identifier for this class.
      */
@@ -124,14 +126,13 @@ public class MavenInvokerBuildAction
     @Override
     public String getDisplayName()
     {
-        // FIXME i18n
-        return "Maven Invoker Plugin Results";
+        return Messages.maveninvoker_DisplayName();
     }
 
     @Override
     public String getUrlName()
     {
-        return "maven-invoker-plugin-results";
+        return URL_NAME;
     }
 
     @Override
