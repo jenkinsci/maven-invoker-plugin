@@ -27,6 +27,7 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
@@ -35,6 +36,7 @@ import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import jenkins.tasks.SimpleBuildStep;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.invoker.model.BuildJob;
 import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
@@ -102,6 +104,18 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
                 MavenInvokerResults mavenInvokerResults = parseReports( reportsFilePaths, logsFilePaths, listener, run );
                 MavenInvokerBuildAction action = new MavenInvokerBuildAction( mavenInvokerResults );
                 run.addAction( action );
+
+                // if any failure mark the build as unstable
+                for (MavenInvokerResult mavenInvokerResult : mavenInvokerResults.getSortedMavenInvokerResults())
+                {
+                    if ( !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SUCCESS)
+                        || !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SKIPPED))
+                    {
+                        run.setResult( Result.UNSTABLE );
+                        return;
+                    }
+                }
+
             }
             catch ( Exception e )
             {
