@@ -109,7 +109,7 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
                 for (MavenInvokerResult mavenInvokerResult : mavenInvokerResults.getSortedMavenInvokerResults())
                 {
                     if ( !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SUCCESS)
-                        || !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SKIPPED))
+                        && !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SKIPPED))
                     {
                         run.setResult( Result.UNSTABLE );
                         return;
