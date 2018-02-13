@@ -29,7 +29,7 @@
 
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>maven-invoker-plugin</artifactId>
-  <version>1.5-SNAPSHOT</version>
+  <version>1.5</version>
   <packaging>hpi</packaging>
 
   <name>Jenkins Maven Invoker plugin</name>
@@ -40,7 +40,7 @@
     <connection>scm:git:https://github.com/jenkinsci/maven-invoker-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/maven-invoker-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/maven-invoker-plugin</url>
-    <tag>HEAD</tag>
+    <tag>maven-invoker-plugin-1.5</tag>
   </scm>
 
   <properties>
