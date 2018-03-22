@@ -57,6 +57,11 @@
       <artifactId>maven-plugin</artifactId>
       <version>2.12.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>mailer</artifactId>
+      <version>1.18</version>
+    </dependency>
     <!-- Undeclared dependencies transitively retrieved from maven-plugin because their tricky configuration and exclusions: -->
     <!-- org.eclipse.sisu:org.eclipse.sisu.plexus which needs exclusions -->
     <dependency>
