@@ -27,8 +27,8 @@ import jenkins.model.RunAction2;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.invoker.model.BuildJob;
-import org.apache.maven.plugin.invoker.model.io.xpp3.BuildJobXpp3Reader;
+import org.apache.maven.plugins.invoker.model.BuildJob;
+import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
@@ -75,13 +75,13 @@ public class MavenInvokerBuildAction
     public MavenInvokerBuildAction( Run<?, ?> build, MavenInvokerResults mavenInvokerResults )
     {
         this.build = build;
-        this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( mavenInvokerResults );
+        this.mavenInvokerResults = new WeakReference<>( mavenInvokerResults );
         initTestCountsFields( mavenInvokerResults );
     }
 
     public MavenInvokerBuildAction( MavenInvokerResults mavenInvokerResults )
     {
-        this.mavenInvokerResults = new WeakReference<MavenInvokerResults>( mavenInvokerResults );
+        this.mavenInvokerResults = new WeakReference<>( mavenInvokerResults );
         initTestCountsFields( mavenInvokerResults );
     }
 
@@ -110,11 +110,11 @@ public class MavenInvokerBuildAction
                 }
                 if ( paths == null )
                 {
-                    mavenInvokerResults = new WeakReference<MavenInvokerResults>( new MavenInvokerResults() );
+                    mavenInvokerResults = new WeakReference<>( new MavenInvokerResults() );
                 }
                 else
                 {
-                    mavenInvokerResults = new WeakReference<MavenInvokerResults>( loadResults( paths ) );
+                    mavenInvokerResults = new WeakReference<>( loadResults( paths ) );
                 }
             }
             MavenInvokerResults results = mavenInvokerResults.get();
