@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * @author Olivier Lamy
@@ -88,6 +89,15 @@ public class MavenInvokerBuildAction
     protected MavenInvokerBuildAction( Run<?, ?> build )
     {
         this.build = build;
+    }
+
+    protected synchronized void addResults( MavenInvokerResults mavenInvokerResults )
+    {
+        MavenInvokerResults invokerResults = new MavenInvokerResults();
+        invokerResults.mavenInvokerResults.addAll( this.mavenInvokerResults.get().getSortedMavenInvokerResults() );
+        invokerResults.mavenInvokerResults.addAll( mavenInvokerResults.getSortedMavenInvokerResults() );
+        this.mavenInvokerResults = new WeakReference<>( invokerResults );
+        initTestCountsFields( mavenInvokerResults );
     }
 
     public MavenInvokerResults getMavenInvokerResults()

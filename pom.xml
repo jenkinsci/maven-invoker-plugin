@@ -46,7 +46,7 @@
   <properties>
     <mavenVersion>3.2.3</mavenVersion>
     <jenkins.version>2.7.3</jenkins.version>
-    <java.level>7</java.level>
+    <java.level>8</java.level>
     <workflow-cps.version>2.37</workflow-cps.version>
     <workflow-support.version>2.14</workflow-support.version>
   </properties>
@@ -92,7 +92,7 @@
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-invoker-plugin</artifactId>
-      <version>3.0.1</version>
+      <version>3.1.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.sonatype.sisu</groupId>

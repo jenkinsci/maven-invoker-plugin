@@ -35,14 +35,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MavenInvokerResults implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<MavenInvokerResult>();
+    public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<>();
 
     public MavenInvokerResults() {
         // no op
     }
 
     public List<MavenInvokerResult> getSortedMavenInvokerResults() {
-        List<MavenInvokerResult> results = new ArrayList<MavenInvokerResult>(mavenInvokerResults);
+        List<MavenInvokerResult> results = new ArrayList<>(mavenInvokerResults);
         Collections.sort(results, InvokerMavenAggregatedReport.COMPARATOR_INSTANCE);
         return results;
     }

@@ -61,9 +61,13 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
     @Deprecated
     public transient String filenamePattern;
 
-    public String reportsFilenamePattern = "target/invoker-reports/BUILD*.xml";
+    public static final String DEFAULT_REPORTS_FILENAME_PATTERN = "target/invoker-reports/BUILD*.xml";
 
-    public String invokerBuildDir = "target/its";
+    public String reportsFilenamePattern = DEFAULT_REPORTS_FILENAME_PATTERN;
+
+    public static final String DEFAULT_INVOKER_BUILD_DIR = "target/its";
+
+    public String invokerBuildDir = DEFAULT_INVOKER_BUILD_DIR;
 
     @Deprecated
     public MavenInvokerRecorder( String reportsFilenamePattern )
@@ -86,6 +90,12 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
 
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener)
+        throws InterruptedException, IOException {
+
+        perform( run, workspace, launcher, listener, new PipelineDetails() );
+    }
+
+    public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener, PipelineDetails pipelineDetails)
             throws InterruptedException, IOException
     {
         PrintStream logger = listener.getLogger();
@@ -99,8 +109,15 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
             try
             {
                 MavenInvokerResults mavenInvokerResults = parseReports( reportsFilePaths, logsFilePaths, listener, run );
-                MavenInvokerBuildAction action = new MavenInvokerBuildAction( mavenInvokerResults );
-                run.addAction( action );
+                if(!pipelineDetails.getEnclosingBlockNames().isEmpty()){
+                    StringBuilder name = new StringBuilder( );
+                    pipelineDetails.getEnclosingBlockNames().stream().forEach( s -> name.append( s ).append( " / " ) );
+                    final String pipelinePath = name.toString();
+                    mavenInvokerResults.mavenInvokerResults //
+                        .stream() //
+                        .forEach( mavenInvokerResult -> mavenInvokerResult.project = pipelinePath + mavenInvokerResult.project );
+                }
+                storeAction(run, mavenInvokerResults);
 
                 // if any failure mark the build as unstable
                 for (MavenInvokerResult mavenInvokerResult : mavenInvokerResults.getSortedMavenInvokerResults())
@@ -117,6 +134,26 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
             catch ( Exception e )
             {
                 throw new IOException( e.getMessage(), e );
+            }
+        }
+    }
+
+    /**
+     *
+     *
+     */
+    private void storeAction(Run<?, ?> run, MavenInvokerResults mavenInvokerResults) {
+        synchronized ( run ) {
+            MavenInvokerBuildAction action = run.getAction( MavenInvokerBuildAction.class );
+            if ( action == null )
+            {
+                action = new MavenInvokerBuildAction( mavenInvokerResults );
+                run.addAction( action );
+
+            }
+            else
+            {
+                action.addResults( mavenInvokerResults );
             }
         }
     }
@@ -230,7 +267,7 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
         }
 
         // If it fails, do a legacy search
-        List<FilePath> files = new ArrayList<FilePath>();
+        List<FilePath> files = new ArrayList<>();
         String parts[] = filenamePattern.split( "\\s*[;:,]+\\s*" );
         for ( String path : parts )
         {

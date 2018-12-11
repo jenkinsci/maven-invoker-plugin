@@ -148,7 +148,7 @@ public class MavenInvokerArchiver
 
                     MavenInvokerRecorder.saveReports( backupDirectory, reportsPaths );
 
-                    List<FilePath> allBuildLogs = new ArrayList<FilePath>();
+                    List<FilePath> allBuildLogs = new ArrayList<>();
 
                     for ( MavenInvokerResult mavenInvokerResult : mavenInvokerResults.mavenInvokerResults )
                     {
