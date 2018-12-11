@@ -5,9 +5,6 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.TaskListener;
-import hudson.tasks.junit.Messages;
-import hudson.util.FormValidation;
-import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.maveninvoker.MavenInvokerRecorder;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.steps.Step;
@@ -15,18 +12,23 @@ import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class MavenInvokerStep extends Step
+public class MavenInvokerStep
+    extends Step
 {
 
     private String reportsFilenamePattern = "target/invoker-reports/BUILD*.xml";
 
     private String invokerBuildDir = "target/its";
 
+    public MavenInvokerStep()
+    {
+        this.reportsFilenamePattern = MavenInvokerRecorder.DEFAULT_REPORTS_FILENAME_PATTERN;
+        this.invokerBuildDir = MavenInvokerRecorder.DEFAULT_INVOKER_BUILD_DIR;
+    }
 
     @DataBoundConstructor
     public MavenInvokerStep( String reportsFilenamePattern, String invokerBuildDir )
@@ -65,22 +67,26 @@ public class MavenInvokerStep extends Step
     }
 
     @Extension
-    public static class DescriptorImpl extends StepDescriptor
+    public static class DescriptorImpl
+        extends StepDescriptor
     {
         @Override
-        public String getFunctionName() {
+        public String getFunctionName()
+        {
             return "maven_invoker";
         }
 
         @Override
         @Nonnull
-        public String getDisplayName() {
+        public String getDisplayName()
+        {
             return "Archive Maven Invoker test results";
         }
 
         @Override
-        public Set<? extends Class<?>> getRequiredContext() {
-            return ImmutableSet.of( FilePath.class, FlowNode.class, TaskListener.class, Launcher.class);
+        public Set<? extends Class<?>> getRequiredContext()
+        {
+            return ImmutableSet.of( FilePath.class, FlowNode.class, TaskListener.class, Launcher.class );
         }
 
     }
