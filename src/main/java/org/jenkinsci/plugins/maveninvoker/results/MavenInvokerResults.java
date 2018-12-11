@@ -23,6 +23,7 @@ package org.jenkinsci.plugins.maveninvoker.results;
 import org.jenkinsci.plugins.maveninvoker.InvokerMavenAggregatedReport;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MavenInvokerResults implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<>();
+    private List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<>();
 
     public MavenInvokerResults() {
         // no op
@@ -45,5 +46,15 @@ public class MavenInvokerResults implements Serializable {
         List<MavenInvokerResult> results = new ArrayList<>(mavenInvokerResults);
         Collections.sort(results, InvokerMavenAggregatedReport.COMPARATOR_INSTANCE);
         return results;
+    }
+
+    @Nonnull
+    public List<MavenInvokerResult> getMavenInvokerResults() {
+        return mavenInvokerResults;
+    }
+
+    public void setMavenInvokerResults( List<MavenInvokerResult> mavenInvokerResults )
+    {
+        this.mavenInvokerResults = mavenInvokerResults;
     }
 }

@@ -113,7 +113,7 @@ public class MavenInvokerArchiver
                     BuildJob buildJob = reader.read( is );
                     MavenInvokerResult mavenInvokerResult = MavenInvokerRecorder.map( buildJob );
                     mavenInvokerResult.mavenModuleName = pom.getArtifactId();
-                    mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
+                    mavenInvokerResults.getMavenInvokerResults().add( mavenInvokerResult );
                 }
                 catch ( XmlPullParserException e )
                 {
@@ -150,7 +150,7 @@ public class MavenInvokerArchiver
 
                     List<FilePath> allBuildLogs = new ArrayList<>();
 
-                    for ( MavenInvokerResult mavenInvokerResult : mavenInvokerResults.mavenInvokerResults )
+                    for ( MavenInvokerResult mavenInvokerResult : mavenInvokerResults.getMavenInvokerResults() )
                     {
 
                         // search build.log files

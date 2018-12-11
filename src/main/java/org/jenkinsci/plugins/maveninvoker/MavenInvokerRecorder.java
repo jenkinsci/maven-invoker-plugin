@@ -113,7 +113,7 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
                     StringBuilder name = new StringBuilder( );
                     pipelineDetails.getEnclosingBlockNames().stream().forEach( s -> name.append( s ).append( " / " ) );
                     final String pipelinePath = name.toString();
-                    mavenInvokerResults.mavenInvokerResults //
+                    mavenInvokerResults.getMavenInvokerResults() //
                         .stream() //
                         .forEach( mavenInvokerResult -> mavenInvokerResult.project = pipelinePath + mavenInvokerResult.project );
                 }
@@ -170,9 +170,9 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
         {
             BuildJob buildJob = reader.read( filePath.read() );
             MavenInvokerResult mavenInvokerResult = map( buildJob );
-            mavenInvokerResults.mavenInvokerResults.add( mavenInvokerResult );
+            mavenInvokerResults.getMavenInvokerResults().add( mavenInvokerResult );
         }
-        logger.println( "Finished parsing Maven Invoker results (found " + mavenInvokerResults.mavenInvokerResults.size()+ ")" );
+        logger.println( "Finished parsing Maven Invoker results (found " + mavenInvokerResults.getMavenInvokerResults().size()+ ")" );
         return mavenInvokerResults;
     }
 

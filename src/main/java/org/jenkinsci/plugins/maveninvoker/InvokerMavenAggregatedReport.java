@@ -66,8 +66,8 @@ public class InvokerMavenAggregatedReport
             MavenInvokerResults miResults = invokerReport.getMavenInvokerResults();
             if ( miResults != null )
             {
-                List<MavenInvokerResult> results = miResults.mavenInvokerResults;
-                mavenInvokerResults.mavenInvokerResults.addAll( results );
+                List<MavenInvokerResult> results = miResults.getMavenInvokerResults();
+                mavenInvokerResults.getMavenInvokerResults().addAll( results );
                 initTestCountsFields( mavenInvokerResults );
             }
         }

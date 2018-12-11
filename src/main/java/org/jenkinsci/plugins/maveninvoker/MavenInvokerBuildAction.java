@@ -94,8 +94,15 @@ public class MavenInvokerBuildAction
     protected synchronized void addResults( MavenInvokerResults mavenInvokerResults )
     {
         MavenInvokerResults invokerResults = new MavenInvokerResults();
-        invokerResults.mavenInvokerResults.addAll( this.mavenInvokerResults.get().getSortedMavenInvokerResults() );
-        invokerResults.mavenInvokerResults.addAll( mavenInvokerResults.getSortedMavenInvokerResults() );
+        MavenInvokerResults current = this.mavenInvokerResults.get();
+        if(current!=null)
+        {
+            if(current.getSortedMavenInvokerResults()!=null)
+            {
+                invokerResults.getMavenInvokerResults().addAll( current.getSortedMavenInvokerResults() );
+            }
+        }
+        invokerResults.getMavenInvokerResults().addAll( mavenInvokerResults.getSortedMavenInvokerResults() );
         this.mavenInvokerResults = new WeakReference<>( invokerResults );
         initTestCountsFields( mavenInvokerResults );
     }
@@ -105,7 +112,7 @@ public class MavenInvokerBuildAction
         if ( build != null )
         {
             if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
-                || mavenInvokerResults.get().mavenInvokerResults.isEmpty() )
+                || mavenInvokerResults.get().getMavenInvokerResults().isEmpty() )
             {
                 FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
                 FilePath[] paths = null;
@@ -232,7 +239,7 @@ public class MavenInvokerBuildAction
     {
         try
         {
-            for ( MavenInvokerResult result : getMavenInvokerResults().mavenInvokerResults )
+            for ( MavenInvokerResult result : getMavenInvokerResults().getMavenInvokerResults() )
             {
                 if ( url.equals( result.getUrl() ) )
                 {
@@ -266,7 +273,7 @@ public class MavenInvokerBuildAction
             try
             {
                 fis = new FileInputStream( new File( filePath.getRemote() ) );
-                results.mavenInvokerResults.add( MavenInvokerRecorder.map( reader.read( fis ) ) );
+                results.getMavenInvokerResults().add( MavenInvokerRecorder.map( reader.read( fis ) ) );
             }
             catch ( IOException e )
             {
@@ -288,7 +295,7 @@ public class MavenInvokerBuildAction
 
     protected void initTestCountsFields( MavenInvokerResults miResults )
     {
-        for ( MavenInvokerResult result : miResults.mavenInvokerResults )
+        for ( MavenInvokerResult result : miResults.getMavenInvokerResults() )
         {
             String resultStr = result.result;
             if ( StringUtils.equals( resultStr, BuildJob.Result.ERROR ) )

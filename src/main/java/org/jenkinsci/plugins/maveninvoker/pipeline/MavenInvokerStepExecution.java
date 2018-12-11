@@ -67,4 +67,6 @@ public class MavenInvokerStepExecution extends SynchronousNonBlockingStepExecuti
         }
         return names;
     }
+
+    private static final long serialVersionUID = 1L;
 }
