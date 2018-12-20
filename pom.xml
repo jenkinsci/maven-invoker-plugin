@@ -45,7 +45,7 @@
 
   <properties>
     <mavenVersion>3.2.3</mavenVersion>
-    <jenkins.version>2.7.3</jenkins.version>
+    <jenkins.version>2.89.4</jenkins.version>
     <java.level>8</java.level>
     <workflow-cps.version>2.37</workflow-cps.version>
     <workflow-support.version>2.14</workflow-support.version>
@@ -61,6 +61,11 @@
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>mailer</artifactId>
       <version>1.18</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+      <version>2.4.11</version>
     </dependency>
     <!-- Undeclared dependencies transitively retrieved from maven-plugin because their tricky configuration and exclusions: -->
     <!-- org.eclipse.sisu:org.eclipse.sisu.plexus which needs exclusions -->
@@ -88,6 +93,11 @@
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model</artifactId>
       <version>${mavenVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>4.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>

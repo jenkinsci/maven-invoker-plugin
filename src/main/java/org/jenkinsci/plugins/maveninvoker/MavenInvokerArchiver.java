@@ -107,11 +107,11 @@ public class MavenInvokerArchiver
 
             for ( File f : reports )
             {
-                InputStream is = new FileInputStream( f );
-                try
+
+                try(InputStream is = new FileInputStream( f );)
                 {
                     BuildJob buildJob = reader.read( is );
-                    MavenInvokerResult mavenInvokerResult = MavenInvokerRecorder.map( buildJob );
+                    MavenInvokerResult mavenInvokerResult = MavenInvokerRecorder.map( buildJob, null );
                     mavenInvokerResult.mavenModuleName = pom.getArtifactId();
                     mavenInvokerResults.getMavenInvokerResults().add( mavenInvokerResult );
                 }
@@ -120,10 +120,6 @@ public class MavenInvokerArchiver
                     e.printStackTrace( listener.fatalError( "failed to parse report" ) );
                     build.setResult( Result.FAILURE );
                     return true;
-                }
-                finally
-                {
-                    IOUtils.closeQuietly( is );
                 }
             }
             logger.println( "Finished parsing Maven Invoker results" );

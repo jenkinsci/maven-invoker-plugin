@@ -38,7 +38,7 @@ under the License.
            <tbody>
            <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
              <tr>
-               <td class="pane"><a href="result/${r.url}">${r.project}</a></td>
+               <td class="pane"><a href="result/${r.project}">${r.project}</a></td>
                <td class="pane" style="text-align:right">${r.result}</td>
                <td class="pane" style="text-align:right">${r.time}</td>
              </tr>

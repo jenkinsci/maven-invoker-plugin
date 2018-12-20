@@ -273,14 +273,9 @@ public class MavenInvokerBuildAction
             try
             {
                 fis = new FileInputStream( new File( filePath.getRemote() ) );
-                results.getMavenInvokerResults().add( MavenInvokerRecorder.map( reader.read( fis ) ) );
+                results.getMavenInvokerResults().add( MavenInvokerRecorder.map( reader.read( fis ), null ) );
             }
-            catch ( IOException e )
-            {
-                // FIXME improve
-                e.printStackTrace();
-            }
-            catch ( XmlPullParserException e )
+            catch ( IOException | XmlPullParserException e )
             {
                 // FIXME improve
                 e.printStackTrace();
