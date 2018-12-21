@@ -27,14 +27,11 @@ import hudson.model.Run;
 /**
  * @author Olivier Lamy
  */
-public class MavenInvokerResult
+public class InvokerResult
     implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
-
-    // used with mavenReporter
-    public String mavenModuleName;
 
     public String project;
 
@@ -54,7 +51,7 @@ public class MavenInvokerResult
 
     public transient String log;
 
-    public MavenInvokerResult()
+    public InvokerResult()
     {
         // no op
     }
@@ -68,7 +65,7 @@ public class MavenInvokerResult
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();
-        sb.append( "MavenInvokerResult" );
+        sb.append( "InvokerResult" );
         sb.append( "{project='" ).append( project ).append( '\'' );
         sb.append( ", name='" ).append( name ).append( '\'' );
         sb.append( ", description='" ).append( description ).append( '\'' );

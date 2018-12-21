@@ -36,7 +36,7 @@ under the License.
              <td class="pane-header" style="width:5em">${%Time} (ms)</td>
            </tr>
            <tbody>
-           <j:forEach var="r" items="${it.mavenInvokerResults.mavenInvokerResults}">
+           <j:forEach var="r" items="${it.mavenInvokerResults.invokerResults}">
              <tr>
                <td class="pane"><a href="result/${r.project}">${r.project}</a></td>
                <td class="pane" style="text-align:right">${r.result}</td>

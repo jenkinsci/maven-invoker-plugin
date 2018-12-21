@@ -36,7 +36,8 @@ import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugins.invoker.model.BuildJob;
 import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Reader;
-import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
+import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Writer;
+import org.jenkinsci.plugins.maveninvoker.results.InvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -109,13 +110,13 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
             try
             {
                 MavenInvokerResults mavenInvokerResults = parseReports( reportsFilePaths, logsFilePaths, listener, run, pipelineDetails );
-                storeAction(run, mavenInvokerResults);
+                storeAction(run, mavenInvokerResults, pipelineDetails);
 
                 // if any failure mark the build as unstable
-                for (MavenInvokerResult mavenInvokerResult : mavenInvokerResults.getSortedMavenInvokerResults())
+                for ( InvokerResult invokerResult : mavenInvokerResults.getInvokerResults())
                 {
-                    if ( !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SUCCESS)
-                        && !StringUtils.equalsIgnoreCase( mavenInvokerResult.result, BuildJob.Result.SKIPPED))
+                    if ( !StringUtils.equalsIgnoreCase( invokerResult.result, BuildJob.Result.SUCCESS)
+                        && !StringUtils.equalsIgnoreCase( invokerResult.result, BuildJob.Result.SKIPPED))
                     {
                         run.setResult( Result.UNSTABLE );
                         return;
@@ -134,7 +135,7 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
      *
      *
      */
-    private void storeAction(Run<?, ?> run, MavenInvokerResults mavenInvokerResults) {
+    private void storeAction(Run<?, ?> run, MavenInvokerResults mavenInvokerResults, PipelineDetails pipelineDetails) {
         synchronized ( run ) {
             MavenInvokerBuildAction action = run.getAction( MavenInvokerBuildAction.class );
             if ( action == null )
@@ -157,46 +158,62 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
         final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
+        final BuildJobXpp3Writer writer = new BuildJobXpp3Writer();
+
+        for ( final FilePath filePath : reportsFilePaths )
+        {
+            BuildJob buildJob = reader.read( filePath.read() );
+            InvokerResult invokerResult = map( buildJob, pipelineDetails );
+            writer.write( filePath.write(), buildJob );
+            mavenInvokerResults.getInvokerResults().add( invokerResult );
+        }
+
+        saveReports( getMavenInvokerReportsDirectory( run, pipelineDetails ), reportsFilePaths );
+        saveBuildLogs( getMavenInvokerReportsDirectory( run, pipelineDetails ), Arrays.asList( logsFilePaths ) );
+
+        logger.println( "Finished parsing Maven Invoker results (found " + mavenInvokerResults.getInvokerResults().size()+ ")" );
+        return mavenInvokerResults;
+
+    }
+
+    private static InvokerResult map( BuildJob buildJob, PipelineDetails pipelineDetails )
+    {
+
+        String pipelinePath = pipelinePath(pipelineDetails);
+
+        InvokerResult invokerResult = new InvokerResult();
+
+        invokerResult.logFilename = buildJob.getProject().replace( "/pom.xml", "-build.log");
+        invokerResult.description = buildJob.getDescription();
+        invokerResult.failureMessage = buildJob.getFailureMessage();
+        invokerResult.name = pipelinePath == null ? buildJob.getName() : pipelinePath + "/" + buildJob.getName();
+        invokerResult.project = pipelinePath == null ? buildJob.getProject() : pipelinePath + "/" + buildJob.getProject();
+        invokerResult.result = buildJob.getResult();
+        invokerResult.time = buildJob.getTime();
+        // transform the current buildJob as well
+        if(pipelinePath!=null)
+        {
+            buildJob.setName( pipelinePath + "/" + buildJob.getName() );
+            buildJob.setProject( pipelinePath + "/" + buildJob.getProject() );
+        }
+        return invokerResult;
+    }
+
+    private static String pipelinePath(PipelineDetails pipelineDetails)
+    {
         String pipelinePath = null;
-        if(!pipelineDetails.getEnclosingBlockNames().isEmpty()){
+        if(pipelineDetails != null && !pipelineDetails.getEnclosingBlockNames().isEmpty()){
             StringBuilder name = new StringBuilder( );
             pipelineDetails.getEnclosingBlockNames().stream().forEach( s -> name.append( s ).append( " / " ) );
             pipelinePath = name.toString();
         }
-
-        saveReports( getMavenInvokerReportsDirectory( run ), reportsFilePaths );
-        saveBuildLogs( getMavenInvokerReportsDirectory( run ), Arrays.asList( logsFilePaths ) );
-        for ( final FilePath filePath : reportsFilePaths )
-        {
-            BuildJob buildJob = reader.read( filePath.read() );
-            MavenInvokerResult mavenInvokerResult = map( buildJob, pipelinePath );
-            mavenInvokerResults.getMavenInvokerResults().add( mavenInvokerResult );
-        }
-        logger.println( "Finished parsing Maven Invoker results (found " + mavenInvokerResults.getMavenInvokerResults().size()+ ")" );
-        return mavenInvokerResults;
-
-
-
-    }
-
-    static MavenInvokerResult map( BuildJob buildJob,String pipelinePath )
-    {
-        MavenInvokerResult mavenInvokerResult = new MavenInvokerResult();
-
-        mavenInvokerResult.logFilename = buildJob.getProject().replace("/pom.xml", "-build.log");
-        mavenInvokerResult.description = buildJob.getDescription();
-        mavenInvokerResult.failureMessage = buildJob.getFailureMessage();
-        mavenInvokerResult.name = buildJob.getName();
-        mavenInvokerResult.project = pipelinePath == null ? buildJob.getProject() : pipelinePath + "/" + buildJob.getProject();
-        mavenInvokerResult.result = buildJob.getResult();
-        mavenInvokerResult.time = buildJob.getTime();
-        return mavenInvokerResult;
+        return pipelinePath;
     }
 
     /**
      * save reports
      */
-    static boolean saveReports( FilePath maveninvokerDir, FilePath[] paths )
+    private static boolean saveReports( FilePath maveninvokerDir, FilePath[] paths )
     {
         try
         {
@@ -242,9 +259,14 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
     /**
      * Gets the directory to store report files
      */
-    static FilePath getMavenInvokerReportsDirectory( Run<?, ?> build )
+    static FilePath getMavenInvokerReportsDirectory( Run<?, ?> build, PipelineDetails pipelineDetails )
     {
-        return new FilePath( new File( build.getRootDir(), STORAGE_DIRECTORY ) );
+        String pipelinePath = pipelinePath( pipelineDetails );
+        if (pipelinePath == null)
+        {
+            return new FilePath( new File( build.getRootDir(), STORAGE_DIRECTORY ) );
+        }
+        return new FilePath( new File( build.getRootDir(), STORAGE_DIRECTORY + "/" + pipelinePath ) );
     }
 
     static FilePath[] locateBuildLogs( FilePath workspace, String basePath )

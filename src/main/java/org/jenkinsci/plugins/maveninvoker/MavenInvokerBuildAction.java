@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugins.invoker.model.BuildJob;
 import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
+import org.jenkinsci.plugins.maveninvoker.results.InvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 
 import java.io.File;
@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * @author Olivier Lamy
@@ -67,10 +66,11 @@ public class MavenInvokerBuildAction
 
     private transient int runTests;
 
+//    private PipelineDetails pipelineDetails;
+
     /**
      * Constructor.
-     * @deprecated This is a {@link RunAction2} instance, not need to pass build explicitly.
-     *             Use {@link #MavenInvokerBuildAction(org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults)}
+     * @deprecated This is a {@link RunAction2} instance, not need to pass build explicitly
      */
     @Deprecated
     public MavenInvokerBuildAction( Run<?, ?> build, MavenInvokerResults mavenInvokerResults )
@@ -80,7 +80,7 @@ public class MavenInvokerBuildAction
         initTestCountsFields( mavenInvokerResults );
     }
 
-    public MavenInvokerBuildAction( MavenInvokerResults mavenInvokerResults )
+    public MavenInvokerBuildAction( MavenInvokerResults mavenInvokerResults)
     {
         this.mavenInvokerResults = new WeakReference<>( mavenInvokerResults );
         initTestCountsFields( mavenInvokerResults );
@@ -97,12 +97,12 @@ public class MavenInvokerBuildAction
         MavenInvokerResults current = this.mavenInvokerResults.get();
         if(current!=null)
         {
-            if(current.getSortedMavenInvokerResults()!=null)
+            if(current.getInvokerResults()!=null)
             {
-                invokerResults.getMavenInvokerResults().addAll( current.getSortedMavenInvokerResults() );
+                invokerResults.getInvokerResults().addAll( current.getInvokerResults() );
             }
         }
-        invokerResults.getMavenInvokerResults().addAll( mavenInvokerResults.getSortedMavenInvokerResults() );
+        invokerResults.getInvokerResults().addAll( mavenInvokerResults.getInvokerResults() );
         this.mavenInvokerResults = new WeakReference<>( invokerResults );
         initTestCountsFields( mavenInvokerResults );
     }
@@ -112,13 +112,13 @@ public class MavenInvokerBuildAction
         if ( build != null )
         {
             if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
-                || mavenInvokerResults.get().getMavenInvokerResults().isEmpty() )
+                || mavenInvokerResults.get().getInvokerResults().isEmpty() )
             {
-                FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build );
+                FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build, null );
                 FilePath[] paths = null;
                 try
                 {
-                    paths = directory.list( "maven-invoker-result*.xml" );
+                    paths = directory.list( "**/maven-invoker-result*.xml" );
                 }
                 catch ( Exception e )
                 {
@@ -235,11 +235,11 @@ public class MavenInvokerBuildAction
         }
     }
 
-    public MavenInvokerResult getResult(String url)
+    public InvokerResult getResult( String url)
     {
         try
         {
-            for ( MavenInvokerResult result : getMavenInvokerResults().getMavenInvokerResults() )
+            for ( InvokerResult result : getMavenInvokerResults().getInvokerResults() )
             {
                 if ( url.equals( result.getUrl() ) )
                 {
@@ -260,10 +260,10 @@ public class MavenInvokerBuildAction
             e.printStackTrace();
         }
 
-        return new MavenInvokerResult();
+        return new InvokerResult();
     }
 
-    MavenInvokerResults loadResults( FilePath[] paths )
+    private MavenInvokerResults loadResults( FilePath[] paths )
     {
         MavenInvokerResults results = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
@@ -273,7 +273,7 @@ public class MavenInvokerBuildAction
             try
             {
                 fis = new FileInputStream( new File( filePath.getRemote() ) );
-                results.getMavenInvokerResults().add( MavenInvokerRecorder.map( reader.read( fis ), null ) );
+                results.getInvokerResults().add( map( reader.read( fis ) ) );
             }
             catch ( IOException | XmlPullParserException e )
             {
@@ -288,9 +288,24 @@ public class MavenInvokerBuildAction
         return results;
     }
 
+    private static InvokerResult map( BuildJob buildJob)
+    {
+
+        InvokerResult invokerResult = new InvokerResult();
+
+        invokerResult.logFilename = buildJob.getProject().replace( "/pom.xml", "-build.log");
+        invokerResult.description = buildJob.getDescription();
+        invokerResult.failureMessage = buildJob.getFailureMessage();
+        invokerResult.name = buildJob.getName();
+        invokerResult.project = buildJob.getProject();
+        invokerResult.result = buildJob.getResult();
+        invokerResult.time = buildJob.getTime();
+        return invokerResult;
+    }
+
     protected void initTestCountsFields( MavenInvokerResults miResults )
     {
-        for ( MavenInvokerResult result : miResults.getMavenInvokerResults() )
+        for ( InvokerResult result : miResults.getInvokerResults() )
         {
             String resultStr = result.result;
             if ( StringUtils.equals( resultStr, BuildJob.Result.ERROR ) )
