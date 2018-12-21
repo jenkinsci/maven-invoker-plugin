@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.net.URLDecoder;
 
 /**
  * @author Olivier Lamy
@@ -241,7 +242,7 @@ public class MavenInvokerBuildAction
         {
             for ( InvokerResult result : getMavenInvokerResults().getInvokerResults() )
             {
-                if ( url.equals( result.getUrl() ) )
+                if ( URLDecoder.decode( url, "UTF-8" ).equals( result.project ) )
                 {
                     result.build = build;
                     String pattern = "**/" + MavenInvokerRecorder.STORAGE_DIRECTORY + "/" + result.logFilename;

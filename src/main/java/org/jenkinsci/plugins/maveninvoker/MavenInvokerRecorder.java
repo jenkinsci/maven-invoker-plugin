@@ -207,7 +207,7 @@ public class MavenInvokerRecorder extends Recorder implements SimpleBuildStep
             pipelineDetails.getEnclosingBlockNames().stream().forEach( s -> name.append( s ).append( " / " ) );
             pipelinePath = name.toString();
         }
-        return pipelinePath;
+        return StringUtils.removeEnd( StringUtils.trim(pipelinePath), "/");
     }
 
     /**

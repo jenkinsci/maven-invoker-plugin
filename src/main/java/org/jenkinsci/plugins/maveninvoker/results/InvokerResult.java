@@ -21,6 +21,8 @@ package org.jenkinsci.plugins.maveninvoker.results;
  */
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import hudson.model.Run;
 
@@ -59,6 +61,11 @@ public class InvokerResult
     public String getUrl()
     {
         return project.replace( "/pom.xml", "" );
+    }
+
+    public String getLink() throws UnsupportedEncodingException
+    {
+        return URLEncoder.encode( this.project, "UTF-8" );
     }
 
     @Override
