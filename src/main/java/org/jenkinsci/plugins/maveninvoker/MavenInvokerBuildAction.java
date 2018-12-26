@@ -41,6 +41,8 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URLDecoder;
 
+import static org.jenkinsci.plugins.maveninvoker.MavenInvokerRecorder.STORAGE_DIRECTORY;
+
 /**
  * @author Olivier Lamy
  */
@@ -112,10 +114,10 @@ public class MavenInvokerBuildAction
     {
         if ( build != null )
         {
-            if ( mavenInvokerResults == null || mavenInvokerResults.get() == null
+            if ( mavenInvokerResults == null || mavenInvokerResults.get() == null //
                 || mavenInvokerResults.get().getInvokerResults().isEmpty() )
             {
-                FilePath directory = MavenInvokerRecorder.getMavenInvokerReportsDirectory( build, null );
+                FilePath directory = new FilePath( new File( build.getRootDir(), STORAGE_DIRECTORY ) );
                 FilePath[] paths = null;
                 try
                 {
@@ -245,7 +247,8 @@ public class MavenInvokerBuildAction
                 if ( URLDecoder.decode( url, "UTF-8" ).equals( result.project ) )
                 {
                     result.build = build;
-                    String pattern = "**/" + MavenInvokerRecorder.STORAGE_DIRECTORY + "/" + result.logFilename;
+                    String pattern = "**/" + STORAGE_DIRECTORY + "/" + result.logFilename;
+                        //+ StringUtils.replace( result.logFilename, "/", "_") + "/build.log";
                     FilePath[] logs = new FilePath( build.getRootDir() ).list(pattern);
                     if ( logs.length > 0 )
                     {
@@ -294,13 +297,16 @@ public class MavenInvokerBuildAction
 
         InvokerResult invokerResult = new InvokerResult();
 
-        invokerResult.logFilename = buildJob.getProject().replace( "/pom.xml", "-build.log");
         invokerResult.description = buildJob.getDescription();
         invokerResult.failureMessage = buildJob.getFailureMessage();
         invokerResult.name = buildJob.getName();
         invokerResult.project = buildJob.getProject();
         invokerResult.result = buildJob.getResult();
         invokerResult.time = buildJob.getTime();
+        //invokerResult.logFilename = buildJob.getProject().replace( "pom.xml", "build.log");
+        invokerResult.logFilename = StringUtils.removeEnd( invokerResult.project, "/pom.xml" );
+        invokerResult.logFilename = StringUtils.replace( invokerResult.logFilename, "/", "_" );
+        invokerResult.logFilename = invokerResult.logFilename + "/build.log";
         return invokerResult;
     }
 
