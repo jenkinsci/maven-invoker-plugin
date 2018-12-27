@@ -20,12 +20,9 @@ package org.jenkinsci.plugins.maveninvoker.results;
  * under the License.
  */
 
-import org.jenkinsci.plugins.maveninvoker.InvokerMavenAggregatedReport;
-import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResult;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,15 +32,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MavenInvokerResults implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public List<MavenInvokerResult> mavenInvokerResults = new CopyOnWriteArrayList<MavenInvokerResult>();
+    private List<InvokerResult> invokerResults = new CopyOnWriteArrayList<>();
 
     public MavenInvokerResults() {
         // no op
     }
 
-    public List<MavenInvokerResult> getSortedMavenInvokerResults() {
-        List<MavenInvokerResult> results = new ArrayList<MavenInvokerResult>(mavenInvokerResults);
-        Collections.sort(results, InvokerMavenAggregatedReport.COMPARATOR_INSTANCE);
-        return results;
+    @Nonnull
+    public List<InvokerResult> getInvokerResults() {
+        return invokerResults;
     }
+
+    public void setInvokerResults( List<InvokerResult> invokerResults )
+    {
+        this.invokerResults = invokerResults;
+    }
+
 }

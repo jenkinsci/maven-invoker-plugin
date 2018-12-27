@@ -29,7 +29,7 @@
 
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>maven-invoker-plugin</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Jenkins Maven Invoker plugin</name>
@@ -45,29 +45,34 @@
 
   <properties>
     <mavenVersion>3.2.3</mavenVersion>
-    <jenkins.version>2.7.3</jenkins.version>
-    <java.level>7</java.level>
+    <jenkins.version>2.89.4</jenkins.version>
+    <java.level>8</java.level>
     <workflow-cps.version>2.37</workflow-cps.version>
     <workflow-support.version>2.14</workflow-support.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.jenkins-ci.main</groupId>
-      <artifactId>maven-plugin</artifactId>
-      <version>2.12.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>mailer</artifactId>
       <version>1.18</version>
     </dependency>
-    <!-- Undeclared dependencies transitively retrieved from maven-plugin because their tricky configuration and exclusions: -->
-    <!-- org.eclipse.sisu:org.eclipse.sisu.plexus which needs exclusions -->
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+      <version>2.4.11</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
       <version>${mavenVersion}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.sonatype.sisu</groupId>
+          <artifactId>sisu-guice</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -90,9 +95,14 @@
       <version>${mavenVersion}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>4.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-invoker-plugin</artifactId>
-      <version>3.0.1</version>
+      <version>3.1.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.sonatype.sisu</groupId>

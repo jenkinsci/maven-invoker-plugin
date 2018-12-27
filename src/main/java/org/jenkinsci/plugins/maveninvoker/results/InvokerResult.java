@@ -21,20 +21,19 @@ package org.jenkinsci.plugins.maveninvoker.results;
  */
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import hudson.model.Run;
 
 /**
  * @author Olivier Lamy
  */
-public class MavenInvokerResult
+public class InvokerResult
     implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
-
-    // used with mavenReporter
-    public String mavenModuleName;
 
     public String project;
 
@@ -54,7 +53,7 @@ public class MavenInvokerResult
 
     public transient String log;
 
-    public MavenInvokerResult()
+    public InvokerResult()
     {
         // no op
     }
@@ -64,11 +63,16 @@ public class MavenInvokerResult
         return project.replace( "/pom.xml", "" );
     }
 
+    public String getLink() throws UnsupportedEncodingException
+    {
+        return URLEncoder.encode( this.project, "UTF-8" );
+    }
+
     @Override
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();
-        sb.append( "MavenInvokerResult" );
+        sb.append( "InvokerResult" );
         sb.append( "{project='" ).append( project ).append( '\'' );
         sb.append( ", name='" ).append( name ).append( '\'' );
         sb.append( ", description='" ).append( description ).append( '\'' );
