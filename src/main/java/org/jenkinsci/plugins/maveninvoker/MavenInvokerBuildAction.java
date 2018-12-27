@@ -32,6 +32,8 @@ import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkinsci.plugins.maveninvoker.results.InvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +53,8 @@ public class MavenInvokerBuildAction
 {
 
     public static final String URL_NAME = "maven-invoker-plugin-results";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger( MavenInvokerBuildAction.class );
 
     /**
      * Unique identifier for this class.
@@ -248,7 +252,6 @@ public class MavenInvokerBuildAction
                 {
                     result.build = build;
                     String pattern = "**/" + STORAGE_DIRECTORY + "/" + result.logFilename;
-                        //+ StringUtils.replace( result.logFilename, "/", "_") + "/build.log";
                     FilePath[] logs = new FilePath( build.getRootDir() ).list(pattern);
                     if ( logs.length > 0 )
                     {
@@ -273,20 +276,14 @@ public class MavenInvokerBuildAction
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
         for ( FilePath filePath : paths )
         {
-            FileInputStream fis = null;
-            try
+            try(FileInputStream fis = new FileInputStream( new File( filePath.getRemote() ) ))
             {
-                fis = new FileInputStream( new File( filePath.getRemote() ) );
                 results.getInvokerResults().add( map( reader.read( fis ) ) );
             }
             catch ( IOException | XmlPullParserException e )
             {
                 // FIXME improve
                 e.printStackTrace();
-            }
-            finally
-            {
-                IOUtils.closeQuietly( fis );
             }
         }
         return results;

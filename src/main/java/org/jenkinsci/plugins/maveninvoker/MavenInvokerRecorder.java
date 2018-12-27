@@ -40,6 +40,8 @@ import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Writer;
 import org.jenkinsci.plugins.maveninvoker.results.InvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +60,8 @@ public class MavenInvokerRecorder
 
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger( MavenInvokerRecorder.class );
 
     public static final String STORAGE_DIRECTORY = "maven-invoker-plugin-reports";
 
@@ -103,18 +107,17 @@ public class MavenInvokerRecorder
                          PipelineDetails pipelineDetails )
         throws InterruptedException, IOException
     {
-        PrintStream logger = listener.getLogger();
-        logger.println( "performing MavenInvokerRecorder, reportsFilenamePattern:'" + reportsFilenamePattern //
-                            + "', invokerBuildDir:'" + invokerBuildDir + "'" );
+        LOGGER.info( "performing MavenInvokerRecorder, reportsFilenamePattern:'{}', invokerBuildDir:'{}'", //
+                     reportsFilenamePattern, invokerBuildDir);
         if ( workspace != null )
         {
             FilePath[] reportsFilePaths = locateReports( workspace, reportsFilenamePattern );
-            logger.println( "Found reports:" + Arrays.asList( reportsFilePaths ) );
+            LOGGER.info( "Found reports: {}", Arrays.asList( reportsFilePaths ) );
             try
             {
                 MavenInvokerResults mavenInvokerResults =
-                    parseReports( reportsFilePaths, listener, run, pipelineDetails, workspace );
-                storeAction( run, mavenInvokerResults, pipelineDetails );
+                    parseReports( reportsFilePaths, run, pipelineDetails, workspace );
+                storeAction( run, mavenInvokerResults );
 
                 // if any failure mark the build as unstable
                 for ( InvokerResult invokerResult : mavenInvokerResults.getInvokerResults() )
@@ -138,7 +141,7 @@ public class MavenInvokerRecorder
     /**
      *
      */
-    private void storeAction( Run<?, ?> run, MavenInvokerResults mavenInvokerResults, PipelineDetails pipelineDetails )
+    private void storeAction( Run<?, ?> run, MavenInvokerResults mavenInvokerResults )
     {
         synchronized ( run )
         {
@@ -156,11 +159,10 @@ public class MavenInvokerRecorder
         }
     }
 
-    private MavenInvokerResults parseReports( FilePath[] reportsFilePaths, TaskListener listener, Run<?, ?> run,
+    private MavenInvokerResults parseReports( FilePath[] reportsFilePaths, Run<?, ?> run,
                                               PipelineDetails pipelineDetails, FilePath workspace )
         throws Exception
     {
-        final PrintStream logger = listener.getLogger();
         MavenInvokerResults mavenInvokerResults = new MavenInvokerResults();
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
         final BuildJobXpp3Writer writer = new BuildJobXpp3Writer();
@@ -176,8 +178,8 @@ public class MavenInvokerRecorder
                         filePath, originalProjectName, workspace );
         }
 
-        logger.println(
-            "Finished parsing Maven Invoker results (found " + mavenInvokerResults.getInvokerResults().size() + ")" );
+        LOGGER.info(
+            "Finished parsing Maven Invoker results (found {})", mavenInvokerResults.getInvokerResults().size());
         return mavenInvokerResults;
 
     }
@@ -187,7 +189,7 @@ public class MavenInvokerRecorder
      * save report
      */
     private boolean saveReport( FilePath maveninvokerDir, FilePath report, String originalProjectName,
-                                FilePath workspace )
+                                FilePath workspace)
     {
         try
         {
@@ -197,14 +199,23 @@ public class MavenInvokerRecorder
             FilePath dst = maveninvokerDir.child( name );
             report.copyTo( dst );
             // save build log file
-            //FilePath[] logs = report.getParent().list( "**-build.log" );
-            FilePath[] logs = workspace.list( this.invokerBuildDir + "/" + //
-                                                  StringUtils.replace( originalProjectName, "pom.xml", "*build.log" ));
-            // get filePath fron originalProjectName"
+            String logsPattern = this.invokerBuildDir + "/" + //
+                StringUtils.replace( originalProjectName, "pom.xml", "*build.log" );
+            FilePath[] logs = workspace.list( logsPattern );
+
+            LOGGER.info( "found files {} for pattern: {} and workspace: {}", Arrays.asList( logs ), logsPattern, workspace);
+
             for ( FilePath log : logs )
             {
+                LOGGER.info( "save file {} to {}", log, maveninvokerDir + log.getName() );
                 dst = maveninvokerDir.child( log.getName() );
                 log.copyTo( dst );
+            }
+
+            if(logs.length<1){
+                String searchPattern = "**/*build.log";
+                logs = workspace.list( searchPattern );
+                LOGGER.info( "found files {} for pattern: {} and workspace: {}", Arrays.asList( logs ), searchPattern, workspace);
             }
         }
         catch ( Exception e )
