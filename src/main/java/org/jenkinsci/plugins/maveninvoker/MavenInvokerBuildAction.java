@@ -54,8 +54,6 @@ public class MavenInvokerBuildAction
 
     public static final String URL_NAME = "maven-invoker-plugin-results";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger( MavenInvokerBuildAction.class );
-
     /**
      * Unique identifier for this class.
      */

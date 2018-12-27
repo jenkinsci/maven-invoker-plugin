@@ -203,11 +203,11 @@ public class MavenInvokerRecorder
                 StringUtils.replace( originalProjectName, "pom.xml", "*build.log" );
             FilePath[] logs = workspace.list( logsPattern );
 
-            LOGGER.info( "found files {} for pattern: {} and workspace: {}", Arrays.asList( logs ), logsPattern, workspace);
+            LOGGER.debug( "found files {} for pattern: {} and workspace: {}", Arrays.asList( logs ), logsPattern, workspace);
 
             for ( FilePath log : logs )
             {
-                LOGGER.info( "save file {} to {}", log, maveninvokerDir + log.getName() );
+                LOGGER.debug( "save file {} to {}", log, maveninvokerDir + log.getName() );
                 dst = maveninvokerDir.child( log.getName() );
                 log.copyTo( dst );
             }
@@ -215,7 +215,7 @@ public class MavenInvokerRecorder
             if(logs.length<1){
                 String searchPattern = "**/*build.log";
                 logs = workspace.list( searchPattern );
-                LOGGER.info( "found files {} for pattern: {} and workspace: {}", Arrays.asList( logs ), searchPattern, workspace);
+                LOGGER.debug( "found files {} for pattern: {} and workspace: {}", Arrays.asList( logs ), searchPattern, workspace);
             }
         }
         catch ( Exception e )

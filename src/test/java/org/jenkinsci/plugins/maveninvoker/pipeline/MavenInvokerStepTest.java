@@ -105,7 +105,7 @@ public class MavenInvokerStepTest
         reports.copyRecursiveTo( reportsDir );
 
         FilePath builds = new FilePath( new File( "src/test/resources/it") );
-        FilePath buildsDir = ws.child( "target/it" );
+        FilePath buildsDir = ws.child( "target/its" );
         buildsDir.mkdirs();
         builds.copyRecursiveTo( buildsDir );
 
@@ -119,6 +119,15 @@ public class MavenInvokerStepTest
         Assert.assertEquals( 4, mavenInvokerBuildAction.getRunTests());
         Assert.assertEquals( 2, mavenInvokerBuildAction.getPassedTestCount());
         Assert.assertEquals( 2, mavenInvokerBuildAction.getFailCount());
+
+        MavenInvokerResults results = mavenInvokerBuildAction.getMavenInvokerResults();
+        assertTrue( !results.getInvokerResults().isEmpty() );
+
+        InvokerResult invokerResult = results.getInvokerResults().get( 0 );
+        InvokerResult found = mavenInvokerBuildAction.getResult( URLEncoder.encode( invokerResult.project, "UTF-8"));
+        assertNotNull( found );
+        assertEquals( invokerResult.name, found.name );
+        assertNotNull( invokerResult.log );
 
     }
 
