@@ -72,7 +72,7 @@ public class MavenInvokerRecorder
 
     public String reportsFilenamePattern = DEFAULT_REPORTS_FILENAME_PATTERN;
 
-    public static final String DEFAULT_INVOKER_BUILD_DIR = "target/its";
+    public static final String DEFAULT_INVOKER_BUILD_DIR = "target/it";
 
     public String invokerBuildDir = DEFAULT_INVOKER_BUILD_DIR;
 

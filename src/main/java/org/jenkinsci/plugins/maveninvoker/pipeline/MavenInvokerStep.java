@@ -20,9 +20,9 @@ public class MavenInvokerStep
     extends Step
 {
 
-    private String reportsFilenamePattern = "target/invoker-reports/BUILD*.xml";
+    private String reportsFilenamePattern;
 
-    private String invokerBuildDir = "target/its";
+    private String invokerBuildDir;
 
     public MavenInvokerStep()
     {

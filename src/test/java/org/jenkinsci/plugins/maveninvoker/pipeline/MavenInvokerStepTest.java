@@ -105,7 +105,7 @@ public class MavenInvokerStepTest
         reports.copyRecursiveTo( reportsDir );
 
         FilePath builds = new FilePath( new File( "src/test/resources/it") );
-        FilePath buildsDir = ws.child( "target/its" );
+        FilePath buildsDir = ws.child( "target/it" );
         buildsDir.mkdirs();
         builds.copyRecursiveTo( buildsDir );
 
