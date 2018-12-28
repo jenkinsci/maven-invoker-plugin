@@ -256,6 +256,7 @@ public class MavenInvokerBuildAction
                         FilePath tmp = logs[0].getParent().createTempDir( "invoker", "log" );
                         logs[0].unzip( tmp );
                         result.log = tmp.child( "build.log" ).readToString();
+                        quietClean( tmp );
                     }
                     return result;
                 }
@@ -268,6 +269,17 @@ public class MavenInvokerBuildAction
         }
 
         return new InvokerResult();
+    }
+
+    private void quietClean(FilePath tmp){
+        try
+        {
+            tmp.deleteRecursive();
+        }
+        catch ( IOException|InterruptedException e )
+        {
+            LoggerFactory.getLogger( getClass() ).info( "skip error deleting directory " + tmp, e);
+        }
     }
 
     private MavenInvokerResults loadResults( FilePath[] paths )
