@@ -253,7 +253,9 @@ public class MavenInvokerBuildAction
                     FilePath[] logs = new FilePath( build.getRootDir() ).list(pattern);
                     if ( logs.length > 0 )
                     {
-                        result.log = logs[0].readToString();
+                        FilePath tmp = logs[0].getParent().createTempDir( "invoker", "log" );
+                        logs[0].unzip( tmp );
+                        result.log = tmp.child( "build.log" ).readToString();
                     }
                     return result;
                 }

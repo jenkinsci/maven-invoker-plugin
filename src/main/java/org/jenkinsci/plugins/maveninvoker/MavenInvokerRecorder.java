@@ -208,8 +208,9 @@ public class MavenInvokerRecorder
             for ( FilePath log : logs )
             {
                 LOGGER.debug( "save file {} to {}", log, maveninvokerDir + log.getName() );
-                dst = maveninvokerDir.child( log.getName() );
-                log.copyTo( dst );
+                dst = maveninvokerDir.child( log.getName() + ".zip" );
+                //log.copyTo( dst );
+                log.zip( dst );
             }
 
             if(logs.length<1){
@@ -248,7 +249,7 @@ public class MavenInvokerRecorder
 
         invokerResult.logFilename = StringUtils.removeEnd( invokerResult.project, "/pom.xml" );
         invokerResult.logFilename = StringUtils.replace( invokerResult.logFilename, "/", "_" );
-        invokerResult.logFilename = invokerResult.logFilename + "/build.log";
+        invokerResult.logFilename = invokerResult.logFilename + "/build.log.zip";
 
         return invokerResult;
     }
