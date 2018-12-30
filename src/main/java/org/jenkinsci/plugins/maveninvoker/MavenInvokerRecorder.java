@@ -39,6 +39,7 @@ import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Reader;
 import org.apache.maven.plugins.invoker.model.io.xpp3.BuildJobXpp3Writer;
 import org.jenkinsci.plugins.maveninvoker.results.InvokerResult;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.jenkinsci.plugins.maveninvoker.pipeline.MavenInvokerStepExecution.getEnclosingBlockNames;
 
 /**
  * @author Olivier Lamy
@@ -101,6 +104,17 @@ public class MavenInvokerRecorder
     {
 
         perform( run, workspace, launcher, listener, new PipelineDetails() );
+    }
+
+    public void perform( Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener, FlowNode flowNode )
+        throws InterruptedException, IOException
+    {
+        String nodeId = flowNode.getId();
+        PipelineDetails pipelineDetails = new PipelineDetails();
+        pipelineDetails.setNodeId( nodeId );
+        pipelineDetails.setEnclosingBlockNames( getEnclosingBlockNames( flowNode.getEnclosingBlocks() ) );
+
+        perform( run, workspace, launcher, listener, pipelineDetails);
     }
 
     public void perform( Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener,
