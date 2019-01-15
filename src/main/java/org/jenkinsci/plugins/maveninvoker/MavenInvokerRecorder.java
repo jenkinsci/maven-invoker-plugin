@@ -46,6 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +75,7 @@ public class MavenInvokerRecorder
 
     public static final String DEFAULT_REPORTS_FILENAME_PATTERN = "target/invoker-reports/BUILD*.xml";
 
-    public String reportsFilenamePattern = DEFAULT_REPORTS_FILENAME_PATTERN;
+    public String reportsFilenamePattern;
 
     public static final String DEFAULT_INVOKER_BUILD_DIR = "target/it";
 
@@ -183,13 +185,21 @@ public class MavenInvokerRecorder
 
         for ( final FilePath filePath : reportsFilePaths )
         {
-            BuildJob buildJob = reader.read( filePath.read() );
+            BuildJob buildJob = null;
+            try (InputStream inputStream = filePath.read())
+            {
+                buildJob = reader.read( inputStream );
+            }
             String originalProjectName = buildJob.getProject();
             InvokerResult invokerResult = map( buildJob, pipelineDetails );
-            writer.write( filePath.write(), buildJob );
+            try (OutputStream outputStream = filePath.write())
+            {
+                writer.write( outputStream, buildJob );
+            }
             mavenInvokerResults.getInvokerResults().add( invokerResult );
             saveReport( getMavenInvokerReportsDirectory( run, pipelineDetails, originalProjectName ), //
                         filePath, originalProjectName, workspace );
+
         }
 
         LOGGER.info(
