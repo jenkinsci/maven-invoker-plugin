@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<build-job project="simple-jsp-fail/pom.xml" name="" description="" result="failure-build" time="7.536" type="normal" />
+<build-job project="simple-jsp-fail/pom.xml" name="" description="" result="failure-build" time="7.536" type="normal" buildlog="../it/simple-jsp-fail/build.log" />
