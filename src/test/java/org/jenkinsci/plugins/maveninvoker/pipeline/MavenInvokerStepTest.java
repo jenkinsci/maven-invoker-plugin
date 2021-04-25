@@ -100,12 +100,12 @@ public class MavenInvokerStepTest
         FilePath ws = rule.jenkins.getWorkspaceFor( j);
 
         FilePath reports = new FilePath( new File( "src/test/resources/invoker-reports") );
-        FilePath reportsDir = ws.child( "target/invoker-reports" );
+        FilePath reportsDir = ws.child( "target" ).child( "invoker-reports" );
         reportsDir.mkdirs();
         reports.copyRecursiveTo( reportsDir );
 
         FilePath builds = new FilePath( new File( "src/test/resources/it") );
-        FilePath buildsDir = ws.child( "target/it" );
+        FilePath buildsDir = ws.child( "target" ).child( "it" );
         buildsDir.mkdirs();
         builds.copyRecursiveTo( buildsDir );
 

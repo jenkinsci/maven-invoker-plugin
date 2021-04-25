@@ -1,4 +1,7 @@
 /*
 * `buildPlugin` step provided by: https://github.com/jenkins-infra/pipeline-library
 */
-buildPlugin()
+buildPlugin(useAci: true, configurations: [
+        [ platform: "linux", jdk: "8" ],
+        [ platform: "linux", jdk: "11" ]
+])

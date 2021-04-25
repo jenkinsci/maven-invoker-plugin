@@ -10,6 +10,7 @@ import org.jenkinsci.plugins.maveninvoker.PipelineDetails;
 import org.jenkinsci.plugins.maveninvoker.results.MavenInvokerResults;
 import org.jenkinsci.plugins.workflow.actions.LabelAction;
 import org.jenkinsci.plugins.workflow.actions.ThreadNameAction;
+import org.jenkinsci.plugins.workflow.graph.BlockStartNode;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
@@ -50,7 +51,7 @@ public class MavenInvokerStepExecution extends SynchronousNonBlockingStepExecuti
 
     // copy from junit plugin
     @Nonnull
-    public static List<String> getEnclosingBlockNames( @Nonnull List<FlowNode> nodes) {
+    public static List<String> getEnclosingBlockNames( @Nonnull List<? extends BlockStartNode> nodes) {
         List<String> names = new ArrayList<>();
         for (FlowNode n : nodes) {
             ThreadNameAction threadNameAction = n.getPersistentAction( ThreadNameAction.class);
