@@ -60,6 +60,11 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.30</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -70,19 +75,9 @@
       <version>1.18</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-      <version>2.4.21</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.8.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
     </dependency>
 
     <dependency>
@@ -176,26 +171,25 @@
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>structs</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins.workflow</groupId>
-      <artifactId>workflow-step-api</artifactId>
-      <version>2.12</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.jenkins-ci.plugins.workflow</groupId>-->
+<!--      <artifactId>workflow-step-api</artifactId>-->
+<!--      <version>2.12</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-api</artifactId>
-      <version>2.22</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jenkins-ci.plugins</groupId>
-          <artifactId>scm-api</artifactId>
-        </exclusion>
-      </exclusions>
+<!--      <version>2.22</version>-->
+<!--      <exclusions>-->
+<!--        <exclusion>-->
+<!--          <groupId>org.jenkins-ci.plugins</groupId>-->
+<!--          <artifactId>scm-api</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>script-security</artifactId>
-      <version>1.30</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -212,13 +206,11 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-cps</artifactId>
-      <version>${workflow-cps.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-job</artifactId>
-      <version>2.11.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -237,7 +229,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-support</artifactId>
-      <version>${workflow-support.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
