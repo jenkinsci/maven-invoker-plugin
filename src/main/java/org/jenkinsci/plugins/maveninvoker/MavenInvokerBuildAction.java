@@ -315,7 +315,7 @@ public class MavenInvokerBuildAction
         //invokerResult.logFilename = buildJob.getProject().replace( "pom.xml", "build.log");
         invokerResult.logFilename = StringUtils.removeEnd( invokerResult.project, "/pom.xml" );
         invokerResult.logFilename = StringUtils.replace( invokerResult.logFilename, "/", "_" );
-        invokerResult.logFilename = invokerResult.logFilename + "/build.log";
+        invokerResult.logFilename = invokerResult.logFilename + "/build.log.zip";
         return invokerResult;
     }
 
