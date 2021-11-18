@@ -20,6 +20,7 @@ package org.jenkinsci.plugins.maveninvoker;
  * under the License.
  */
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.FilePath;
 import hudson.model.Api;
 import hudson.model.Run;
@@ -240,6 +241,7 @@ public class MavenInvokerBuildAction
         }
     }
 
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE") // see https://github.com/spotbugs/spotbugs/issues/651
     public InvokerResult getResult( String url)
     {
         try
