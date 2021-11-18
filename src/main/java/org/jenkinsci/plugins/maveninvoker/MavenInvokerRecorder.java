@@ -284,7 +284,7 @@ public class MavenInvokerRecorder
         if ( pipelineDetails != null && !pipelineDetails.getEnclosingBlockNames().isEmpty() )
         {
             StringBuilder name = new StringBuilder();
-            pipelineDetails.getEnclosingBlockNames().stream().forEach( s -> name.append( s ).append( " / " ) );
+            pipelineDetails.getEnclosingBlockNames().forEach(s -> name.append(s).append(" / "));
             pipelinePath = name.toString();
         }
         return StringUtils.removeEnd( StringUtils.trim( pipelinePath ), "/" );
