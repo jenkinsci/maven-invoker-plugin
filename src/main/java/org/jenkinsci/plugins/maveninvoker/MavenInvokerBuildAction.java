@@ -290,7 +290,7 @@ public class MavenInvokerBuildAction
         final BuildJobXpp3Reader reader = new BuildJobXpp3Reader();
         for ( FilePath filePath : paths )
         {
-            try(FileInputStream fis = new FileInputStream( new File( filePath.getRemote() ) ))
+            try(FileInputStream fis = new FileInputStream(filePath.getRemote()))
             {
                 results.getInvokerResults().add( map( reader.read( fis ) ) );
             }
