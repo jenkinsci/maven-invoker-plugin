@@ -323,7 +323,7 @@ public class MavenInvokerRecorder
 
         // If it fails, do a legacy search
         List<FilePath> files = new ArrayList<>();
-        String parts[] = filenamePattern.split( "\\s*[;:,]+\\s*" );
+        String[] parts = filenamePattern.split( "\\s*[;:,]+\\s*" );
         for ( String path : parts )
         {
             FilePath src = workspace.child( path );
