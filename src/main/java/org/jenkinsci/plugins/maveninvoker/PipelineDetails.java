@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.maveninvoker;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class PipelineDetails
         return nodeId;
     }
 
-    public void setNodeId( @Nonnull String nodeId )
+    public void setNodeId( @NonNull String nodeId )
     {
         this.nodeId = nodeId;
     }

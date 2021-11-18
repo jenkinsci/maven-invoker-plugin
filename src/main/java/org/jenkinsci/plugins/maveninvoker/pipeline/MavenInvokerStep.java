@@ -12,7 +12,7 @@ import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -78,7 +78,7 @@ public class MavenInvokerStep
         }
 
         @Override
-        @Nonnull
+        @NonNull
         public String getDisplayName()
         {
             return "Archive Maven Invoker test results";
