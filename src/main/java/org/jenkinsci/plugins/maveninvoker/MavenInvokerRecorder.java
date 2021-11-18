@@ -339,7 +339,7 @@ public class MavenInvokerRecorder
                 }
             }
         }
-        return files.toArray( new FilePath[files.size()] );
+        return files.toArray(new FilePath[0]);
     }
 
     public static final class DescriptorImpl
