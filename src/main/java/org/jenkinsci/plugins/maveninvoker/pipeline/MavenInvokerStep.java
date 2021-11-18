@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.maveninvoker.pipeline;
 
-import com.google.common.collect.ImmutableSet;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -14,6 +13,8 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class MavenInvokerStep
@@ -86,7 +87,9 @@ public class MavenInvokerStep
         @Override
         public Set<? extends Class<?>> getRequiredContext()
         {
-            return ImmutableSet.of( FilePath.class, FlowNode.class, TaskListener.class, Launcher.class );
+            Set<Class<?>> context = new HashSet<>();
+            Collections.addAll(context, FilePath.class, FlowNode.class, TaskListener.class, Launcher.class);
+            return Collections.unmodifiableSet(context);
         }
 
     }
