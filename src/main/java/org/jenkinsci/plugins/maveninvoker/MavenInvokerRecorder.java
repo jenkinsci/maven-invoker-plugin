@@ -48,7 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -284,7 +283,7 @@ public class MavenInvokerRecorder
         if ( pipelineDetails != null && !pipelineDetails.getEnclosingBlockNames().isEmpty() )
         {
             StringBuilder name = new StringBuilder();
-            pipelineDetails.getEnclosingBlockNames().stream().forEach( s -> name.append( s ).append( " / " ) );
+            pipelineDetails.getEnclosingBlockNames().forEach(s -> name.append(s).append(" / "));
             pipelinePath = name.toString();
         }
         return StringUtils.removeEnd( StringUtils.trim( pipelinePath ), "/" );
@@ -323,7 +322,7 @@ public class MavenInvokerRecorder
 
         // If it fails, do a legacy search
         List<FilePath> files = new ArrayList<>();
-        String parts[] = filenamePattern.split( "\\s*[;:,]+\\s*" );
+        String[] parts = filenamePattern.split( "\\s*[;:,]+\\s*" );
         for ( String path : parts )
         {
             FilePath src = workspace.child( path );
@@ -339,7 +338,7 @@ public class MavenInvokerRecorder
                 }
             }
         }
-        return files.toArray( new FilePath[files.size()] );
+        return files.toArray(new FilePath[0]);
     }
 
     public static final class DescriptorImpl

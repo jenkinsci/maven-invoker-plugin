@@ -3,9 +3,9 @@ package org.jenkinsci.plugins.maveninvoker;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
+import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
-import hudson.model.Run;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class MavenInvokerRecorderTest
             }
         });
         p.getPublishersList().add(new MavenInvokerRecorder( "src/test/resources/invoker-reports/*.xml" ));
-        Run run = j.assertBuildStatus( Result.UNSTABLE, p.scheduleBuild2( 0).get());
+        FreeStyleBuild run = j.assertBuildStatus(Result.UNSTABLE, p.scheduleBuild2(0));
         MavenInvokerBuildAction mavenInvokerBuildAction = run.getAction( MavenInvokerBuildAction.class );
         Assert.assertEquals( 2, mavenInvokerBuildAction.getRunTests());
         Assert.assertEquals( 1, mavenInvokerBuildAction.getPassedTestCount());

@@ -21,7 +21,7 @@ package org.jenkinsci.plugins.maveninvoker.results;
  */
 
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -38,7 +38,7 @@ public class MavenInvokerResults implements Serializable {
         // no op
     }
 
-    @Nonnull
+    @NonNull
     public List<InvokerResult> getInvokerResults() {
         return invokerResults;
     }

@@ -15,7 +15,7 @@ import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class MavenInvokerStepExecution extends SynchronousNonBlockingStepExecuti
 
     private transient final MavenInvokerStep step;
 
-    public MavenInvokerStepExecution( @Nonnull StepContext context, MavenInvokerStep step )
+    public MavenInvokerStepExecution( @NonNull StepContext context, MavenInvokerStep step )
     {
         super( context );
         this.step = step;
@@ -50,8 +50,8 @@ public class MavenInvokerStepExecution extends SynchronousNonBlockingStepExecuti
 
 
     // copy from junit plugin
-    @Nonnull
-    public static List<String> getEnclosingBlockNames( @Nonnull List<? extends BlockStartNode> nodes) {
+    @NonNull
+    public static List<String> getEnclosingBlockNames( @NonNull List<? extends BlockStartNode> nodes) {
         List<String> names = new ArrayList<>();
         for (FlowNode n : nodes) {
             ThreadNameAction threadNameAction = n.getPersistentAction( ThreadNameAction.class);

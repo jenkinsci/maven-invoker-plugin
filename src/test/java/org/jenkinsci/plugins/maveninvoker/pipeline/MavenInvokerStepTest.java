@@ -17,7 +17,9 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class MavenInvokerStepTest
 {
@@ -67,7 +69,7 @@ public class MavenInvokerStepTest
         assertEquals( 2, mavenInvokerBuildAction.getFailCount());
 
         MavenInvokerResults results = mavenInvokerBuildAction.getMavenInvokerResults();
-        assertTrue( !results.getInvokerResults().isEmpty() );
+        assertFalse(results.getInvokerResults().isEmpty());
 
         InvokerResult invokerResult = results.getInvokerResults().get( 0 );
         InvokerResult found = mavenInvokerBuildAction.getResult( URLEncoder.encode( invokerResult.project, "UTF-8"));
@@ -121,7 +123,7 @@ public class MavenInvokerStepTest
         Assert.assertEquals( 2, mavenInvokerBuildAction.getFailCount());
 
         MavenInvokerResults results = mavenInvokerBuildAction.getMavenInvokerResults();
-        assertTrue( !results.getInvokerResults().isEmpty() );
+        assertFalse(results.getInvokerResults().isEmpty());
 
         InvokerResult invokerResult = results.getInvokerResults().get( 0 );
         InvokerResult found = mavenInvokerBuildAction.getResult( URLEncoder.encode( invokerResult.project, "UTF-8"));
