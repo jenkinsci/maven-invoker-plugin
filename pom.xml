@@ -47,7 +47,7 @@
     <revision>2.5</revision>
     <changelist>-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/${project.artifactId}</gitHubRepo>
-    <mavenVersion>3.8.3</mavenVersion>
+    <mavenVersion>3.8.4</mavenVersion>
     <jenkins.version>2.321</jenkins.version>
     <java.level>8</java.level>
   </properties>
