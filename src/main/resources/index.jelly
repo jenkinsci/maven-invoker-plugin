@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+  This plugin will parse result files produced by the maven-invoker-plugin
+</div>
