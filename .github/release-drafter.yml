@@ -1,2 +1,0 @@
-_extends: .github
-tag-template: maven-invoker-plugin-$NEXT_MINOR_VERSION
