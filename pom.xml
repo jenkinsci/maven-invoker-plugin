@@ -29,7 +29,7 @@
   </parent>
 
   <artifactId>maven-invoker-plugin</artifactId>
-  <version>2.6</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>Jenkins Maven Invoker plugin</name>
@@ -44,7 +44,7 @@
   </scm>
 
   <properties>
-    <revision>2.6</revision>
+    <revision>2.7</revision>
     <changelist>-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/${project.artifactId}</gitHubRepo>
     <mavenVersion>3.8.4</mavenVersion>
